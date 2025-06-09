@@ -11,372 +11,399 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
-    <link href="/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     
-    <style>
-        body { font-family: 'Roboto Slab', serif; background-color: white; }
-        .handwritten { font-family: 'Courier New', monospace; font-style: italic; font-weight: 600; letter-spacing: 0.03em; }
-        .italic { font-style: italic; }
-        input, button, textarea, select { font-family: 'Roboto Slab', serif; }
-
-        .inventory-table-container {
-            overflow-x: auto;
-        }
-        .inventory-table {
-            width: 100%;
-            border-collapse: collapse;
-            /* Add any custom table styles you had */
-        }
-        .inventory-table th, .inventory-table td {
-            border: 1px solid #e2e8f0; /* Tailwind's border-gray-200 */
-            padding: 8px;
-            text-align: left;
-            white-space: nowrap; /* Prevent wrapping in cells */
-        }
-        .inventory-table th {
-            background-color: #f8fafc; /* Tailwind's bg-gray-50 */
-            font-weight: 600;
-        }
-        .inventory-table tbody tr:nth-child(even) {
-            background-color: #f0f4f8; /* A light gray for even rows */
-        }
-        .inventory-table tbody tr:hover {
-            background-color: #e2e8f0; /* Highlight on hover */
-        }
-
-        /* Custom styles for the count input */
-        .count-input-group {
-            display: flex;
-            align-items: center;
-            gap: 4px; /* Space between inputs and button */
-        }
-        .count-display-field {
-            flex-grow: 1; /* Allow input to take available space */
-        }
-    </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <div class="container mx-auto p-4 flex-grow">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Packaging Materials Inventory</h1>
 
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-md max-w-5xl mt-8 mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Packaging Materials Inventory</h1>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-                <label for="dateShift" class="block text-gray-700 text-sm font-bold mb-2">Date / Shift:</label>
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="dateShift" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline handwritten" placeholder="MM/DD/YYYY">
-                    <button id="setDateBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        <i class="fas fa-calendar-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div>
-                <label for="timeCounted" class="block text-gray-700 text-sm font-bold mb-2">TIME COUNTED:</label>
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="timeCounted" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline handwritten" placeholder="HH:MM">
-                    <button id="setTimeBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        <i class="fas fa-clock"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-6 text-center">
-            <button id="addNewBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105">
-                <i class="fas fa-plus-circle mr-2"></i>Add New Item
+        <div class="flex justify-end mb-4">
+            <button id="addItemBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md">
+                <i class="fas fa-plus"></i> Add Item
             </button>
         </div>
 
-        <div class="inventory-table-container mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Inventory</h2>
-            <table id="inventoryTable" class="inventory-table shadow-md rounded-lg overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <label for="dateShift" class="block text-sm font-medium text-gray-700">Date Shift:</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="text" id="dateShift" name="dateShift" class="focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border-gray-300">
+                    <button id="setDateBtn" class="ml-2 inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Set Date
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <label for="timeCounted" class="block text-sm font-medium text-gray-700">Time Counted:</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="text" id="timeCounted" name="timeCounted" class="focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border-gray-300">
+                    <button id="setTimeBtn" class="ml-2 inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Set Time
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-between">
+                <input type="file" id="importCountsFile" accept=".xlsx, .xls" class="hidden">
+                <button id="importCountsBtn" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md">
+                    <i class="fas fa-file-import"></i> Import Counts
+                </button>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-between">
+                <button id="exportExcelBtn" class="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded shadow-md">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <div class="inventory-table-container bg-white p-4 rounded-lg shadow-md">
+            <table id="inventoryTable" class="inventory-table min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
-                        <th class="py-3 px-4 uppercase text-xs text-gray-600 border-b">Item Code</th>
-                        <th class="py-3 px-4 uppercase text-xs text-gray-600 border-b">Count</th>
-                        <th class="py-3 px-4 uppercase text-xs text-gray-600 border-b">Remarks</th>
-                        <th class="py-3 px-4 uppercase text-xs text-gray-600 border-b">Action</th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Code</th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Count</th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual Count</th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
+                        <th class="py-2 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="inventoryTableBody" class="bg-white divide-y divide-gray-200">
                     </tbody>
             </table>
         </div>
-
-        <div class="mt-8 flex flex-wrap gap-4 justify-center border-t pt-4">
-            <input type="file" id="importFile" accept=".xls,.xlsx" class="hidden">
-            <button id="importBtn" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                <i class="fas fa-file-import mr-2"></i>Import Countsheet
-            </button>
-            <button id="exportBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                <i class="fas fa-file-export mr-2"></i>Generate Excel Report
-            </button>
-            <button id="clearDataBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                <i class="fas fa-trash-alt mr-2"></i>Clear All Data
-            </button>
-            <button id="previewBtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                <i class="fas fa-eye mr-2"></i>Preview
-            </button>
-        </div>
     </div>
 
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white border border-gray-400 rounded-md shadow-lg w-full max-w-md p-6 relative font-sans">
-            <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl leading-none">
-                &times;
-            </button>
-            <h2 id="modalTitle" class="text-lg font-bold mb-4 uppercase">Add New Item</h2>
-            <div class="mb-4">
-                <label for="itemCode" class="block text-gray-700 text-sm font-bold mb-2">Item Code:</label>
-                <input type="text" id="itemCode" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter Item Code">
-            </div>
-            <div class="mb-4">
-                <label for="itemCount" class="block text-gray-700 text-sm font-bold mb-2">Count (comma-separated):</label>
-                <input type="text" id="itemCount" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., 10,20,30">
-            </div>
-            <div class="mb-4">
-                <label for="itemRemarks" class="block text-gray-700 text-sm font-bold mb-2">Remarks (comma-separated):</label>
-                <input type="text" id="itemRemarks" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="e.g., Good,Damaged">
-            </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button id="cancelBtn" class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Cancel
-                </button>
-                <button id="saveBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Save Item
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="previewSelectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white border border-gray-400 rounded-md shadow-lg w-full max-w-lg p-6 relative font-sans">
-            <button id="closePreviewSelectionModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl leading-none">
-                &times;
-            </button>
-            <h2 class="text-lg font-bold mb-4 uppercase">Select Items for Preview</h2>
-            <div id="previewCheckboxes" class="mb-4 max-h-64 overflow-y-auto border p-3 rounded">
+    <div id="itemModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="closeItemModalBtn">&times;</span>
+            <h2 class="modal-title" id="modalTitle">Add New Item</h2>
+            <form id="itemForm">
+                <input type="hidden" id="itemId">
+                <div class="form-group">
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" id="itemName" required>
                 </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button id="cancelPreviewBtn" class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Cancel
-                </button>
-                <button id="generatePreviewBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Generate Preview
-                </button>
+                <div class="form-group">
+                    <label for="itemCode">Item Code:</label>
+                    <input type="text" id="itemCode" required>
+                </div>
+                <div class="form-group">
+                    <label for="previousCount">Previous Count:</label>
+                    <input type="number" id="previousCount" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="actualCount">Actual Count:</label>
+                    <input type="number" id="actualCount" value="0" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save</button>
+                    <button type="button" class="cancel-btn" id="cancelItemBtn"><i class="fas fa-times-circle"></i> Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="previewSelectionModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="closePreviewSelectionModalBtn">&times;</span>
+            <h2 class="modal-title">Preview Options</h2>
+            <p class="mb-4">Select the columns you want to include in the preview:</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="block">
+                    <input type="checkbox" id="previewItemName" checked class="mr-2"> Item Name
+                </label>
+                <label class="block">
+                    <input type="checkbox" id="previewItemCode" checked class="mr-2"> Item Code
+                </label>
+                <label class="block">
+                    <input type="checkbox" id="previewPreviousCount" checked class="mr-2"> Previous Count
+                </label>
+                <label class="block">
+                    <input type="checkbox" id="previewActualCount" checked class="mr-2"> Actual Count
+                </label>
+                <label class="block">
+                    <input type="checkbox" id="previewVariance" checked class="mr-2"> Variance
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="save-btn" id="generatePreviewBtn"><i class="fas fa-eye"></i> Generate Preview</button>
+                <button type="button" class="cancel-btn" id="cancelPreviewBtn"><i class="fas fa-times-circle"></i> Cancel</button>
             </div>
         </div>
     </div>
+
+    <footer class="mt-8 py-4 text-center text-gray-600 text-sm">
+        <p>&copy; 2024 Packaging Materials Inventory. All rights reserved.</p>
+    </footer>
 
     <script>
+        // DOM Elements
+        const addItemBtn = document.getElementById('addItemBtn');
+        const itemModal = document.getElementById('itemModal');
+        const closeItemModalBtn = document.getElementById('closeItemModalBtn');
+        const cancelItemBtn = document.getElementById('cancelItemBtn');
+        const itemForm = document.getElementById('itemForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const itemIdInput = document.getElementById('itemId');
+        const itemNameInput = document.getElementById('itemName');
+        const itemCodeInput = document.getElementById('itemCode');
+        const previousCountInput = document.getElementById('previousCount');
+        const actualCountInput = document.getElementById('actualCount');
+        const inventoryTableBody = document.getElementById('inventoryTableBody');
+
+        const exportExcelBtn = document.getElementById('exportExcelBtn');
+        const importCountsFile = document.getElementById('importCountsFile');
+        const importCountsBtn = document.getElementById('importCountsBtn');
+
         const dateShiftInput = document.getElementById('dateShift');
         const timeCountedInput = document.getElementById('timeCounted');
         const setDateBtn = document.getElementById('setDateBtn');
         const setTimeBtn = document.getElementById('setTimeBtn');
 
-        const addNewBtn = document.getElementById('addNewBtn');
-        const inventoryTableBody = document.querySelector('#inventoryTable tbody');
-
-        const modal = document.getElementById("modal");
-        const modalTitle = document.getElementById("modalTitle");
-        const closeModalBtn = document.getElementById("closeModalBtn");
-        const itemCodeInput = document.getElementById("itemCode");
-        const itemCountInput = document.getElementById("itemCount");
-        const itemRemarksInput = document.getElementById("itemRemarks");
-        const saveBtn = document.getElementById("saveBtn");
-        const cancelBtn = document.getElementById("cancelBtn");
-
-        const previewBtn = document.getElementById('previewBtn');
-        const importBtn = document.getElementById('importBtn');
-        const importFile = document.getElementById('importFile');
-        const exportBtn = document.getElementById('exportBtn');
-        const clearDataBtn = document.getElementById('clearDataBtn');
-
         const previewSelectionModal = document.getElementById('previewSelectionModal');
-        const previewCheckboxes = document.getElementById('previewCheckboxes');
+        const closePreviewSelectionModalBtn = document.getElementById('closePreviewSelectionModalBtn');
         const generatePreviewBtn = document.getElementById('generatePreviewBtn');
         const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
-        const closePreviewSelectionModalBtn = document.getElementById('closePreviewSelectionModalBtn');
 
+        let items = [];
+        let currentItemId = null; // Used for editing
 
-        let inventoryData = [];
-        let editIndex = null;
-
-        // --- Modal Functions ---
-        function openModal(index) {
-            itemCodeInput.value = '';
-            itemCountInput.value = '';
-            itemRemarksInput.value = '';
-
-            if (index !== null) {
-                modalTitle.textContent = "Edit Item";
-                const item = inventoryData[index];
-                itemCodeInput.value = item.code;
-                itemCountInput.value = item.count.join(',');
-                itemRemarksInput.value = item.remarks.join(',');
-                editIndex = index;
-            } else {
-                modalTitle.textContent = "Add New Item";
-                editIndex = null;
-            }
-            modal.classList.remove("hidden");
-            setTimeout(() => { itemCodeInput.focus(); }, 50); // Focus after modal is visible
+        // Modal Functions
+        function openItemModal() {
+            itemModal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            modal.classList.add("hidden");
-            editIndex = null;
-            itemCodeInput.value = '';
-            itemCountInput.value = '';
-            itemRemarksInput.value = '';
-            renderTable(); // Re-render table to ensure any changes are reflected
+        function closeItemModal() {
+            itemModal.classList.add('hidden');
+            itemForm.reset();
+            modalTitle.textContent = 'Add New Item';
+            itemIdInput.value = '';
+            currentItemId = null;
         }
 
         function openPreviewSelectionModal() {
-            previewCheckboxes.innerHTML = ''; // Clear previous checkboxes
-            if (inventoryData.length === 0) {
-                alert("No items to preview. Please add items first.");
-                return;
-            }
-            inventoryData.forEach((item, index) => {
-                const div = document.createElement('div');
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `previewItem${index}`;
-                checkbox.value = index;
-                checkbox.checked = true; // Default to selected
-
-                const label = document.createElement('label');
-                label.htmlFor = `previewItem${index}`;
-                label.textContent = `${item.code} - ${item.count.join(', ')}`;
-                label.classList.add('ml-2');
-
-                div.appendChild(checkbox);
-                div.appendChild(label);
-                previewCheckboxes.appendChild(div);
-            });
             previewSelectionModal.classList.remove('hidden');
         }
 
         function closePreviewSelectionModal() {
             previewSelectionModal.classList.add('hidden');
-            // No need to renderTable here unless preview logic affects main table
         }
-        // --- END Modal Functions ---
 
+        // Event Listeners for Modals
+        addItemBtn.addEventListener('click', () => {
+            modalTitle.textContent = 'Add New Item';
+            openItemModal();
+        });
+        closeItemModalBtn.addEventListener('click', closeItemModal);
+        cancelItemBtn.addEventListener('click', closeItemModal);
 
-        // --- Core Application Logic ---
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === itemModal) {
+                closeItemModal();
+            }
+            if (event.target === previewSelectionModal) {
+                closePreviewSelectionModal();
+            }
+        });
+
+        // Item Form Submission
+        itemForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const itemName = itemNameInput.value.trim();
+            const itemCode = itemCodeInput.value.trim();
+            const previousCount = parseInt(previousCountInput.value);
+            const actualCount = parseInt(actualCountInput.value);
+
+            if (!itemName || !itemCode) {
+                alert('Item Name and Item Code are required.');
+                return;
+            }
+
+            const variance = actualCount - previousCount;
+
+            if (currentItemId) {
+                // Edit existing item
+                const index = items.findIndex(item => item.id === currentItemId);
+                if (index !== -1) {
+                    items[index] = { id: currentItemId, itemName, itemCode, previousCount, actualCount, variance };
+                }
+            } else {
+                // Add new item
+                const newItem = {
+                    id: Date.now(), // Simple unique ID
+                    itemName,
+                    itemCode,
+                    previousCount,
+                    actualCount,
+                    variance
+                };
+                items.push(newItem);
+            }
+
+            saveToLocal();
+            renderTable();
+            closeItemModal();
+        });
+
+        // Render Table
+        function renderTable() {
+            inventoryTableBody.innerHTML = ''; // Clear existing rows
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2 px-4"><input type="checkbox" data-item-id="${item.id}" class="item-checkbox"></td>
+                    <td class="py-2 px-4">${item.itemName}</td>
+                    <td class="py-2 px-4">${item.itemCode}</td>
+                    <td class="py-2 px-4">${item.previousCount}</td>
+                    <td class="py-2 px-4">${item.actualCount}</td>
+                    <td class="py-2 px-4 ${item.variance !== 0 ? (item.variance > 0 ? 'text-green-600' : 'text-red-600') : 'text-gray-600'}">${item.variance}</td>
+                    <td class="py-2 px-4">
+                        <button class="edit-btn" data-id="${item.id}"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="delete-btn" data-id="${item.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                `;
+                inventoryTableBody.appendChild(row);
+            });
+
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', (event) => editItem(parseInt(event.currentTarget.dataset.id)));
+            });
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (event) => deleteItem(parseInt(event.currentTarget.dataset.id)));
+            });
+        }
+
+        // Edit Item
+        function editItem(id) {
+            const item = items.find(item => item.id === id);
+            if (item) {
+                currentItemId = item.id;
+                modalTitle.textContent = 'Edit Item';
+                itemIdInput.value = item.id;
+                itemNameInput.value = item.itemName;
+                itemCodeInput.value = item.itemCode;
+                previousCountInput.value = item.previousCount;
+                actualCountInput.value = item.actualCount;
+                openItemModal();
+            }
+        }
+
+        // Delete Item
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                items = items.filter(item => item.id !== id);
+                saveToLocal();
+                renderTable();
+            }
+        }
+
+        // Local Storage
         function saveToLocal() {
-            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
-            localStorage.setItem('dateShift', dateShiftInput.value);
-            localStorage.setItem('timeCounted', timeCountedInput.value);
+            localStorage.setItem('inventoryItems', JSON.stringify(items));
         }
 
         function loadFromLocal() {
-            const storedData = localStorage.getItem('inventoryData');
-            const storedDate = localStorage.getItem('dateShift');
-            const storedTime = localStorage.getItem('timeCounted');
-            if (storedData) {
-                inventoryData = JSON.parse(storedData);
-            }
-            if (storedDate) {
-                dateShiftInput.value = storedDate;
-            }
-            if (storedTime) {
-                timeCountedInput.value = storedTime;
+            const storedItems = localStorage.getItem('inventoryItems');
+            if (storedItems) {
+                items = JSON.parse(storedItems);
             }
         }
 
-        function renderTable() {
-            inventoryTableBody.innerHTML = '';
-            if (inventoryData.length === 0) {
-                const row = inventoryTableBody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 4;
-                cell.textContent = 'No items in inventory. Click "Add New Item" to start.';
-                cell.classList.add('text-center', 'italic', 'py-4', 'text-gray-500');
+        // Export to Excel
+        exportExcelBtn.addEventListener('click', () => {
+            openPreviewSelectionModal();
+        });
+
+        generatePreviewBtn.addEventListener('click', async () => {
+            const selectedColumns = {
+                itemName: document.getElementById('previewItemName').checked,
+                itemCode: document.getElementById('previewItemCode').checked,
+                previousCount: document.getElementById('previewPreviousCount').checked,
+                actualCount: document.getElementById('previewActualCount').checked,
+                variance: document.getElementById('previewVariance').checked
+            };
+
+            const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(checkbox => {
+                const id = parseInt(checkbox.dataset.itemId);
+                return items.find(item => item.id === id);
+            }).filter(Boolean); // Filter out any undefined items
+
+            if (selectedItems.length === 0) {
+                alert("Please select at least one item to preview.");
                 return;
             }
 
-            inventoryData.forEach((item, index) => {
-                const row = inventoryTableBody.insertRow();
-                row.classList.add('hover:bg-gray-50');
-
-                row.insertCell().textContent = item.code;
-                row.insertCell().textContent = item.count.join(', ');
-                row.insertCell().textContent = item.remarks.join(', ');
-
-                const actionCell = row.insertCell();
-                actionCell.classList.add('flex', 'space-x-2', 'py-2');
-
-                const editBtn = document.createElement('button');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-                editBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
-                editBtn.title = 'Edit Item';
-                editBtn.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Prevent row click from triggering
-                    openModal(index);
-                });
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                deleteBtn.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
-                deleteBtn.title = 'Delete Item';
-                deleteBtn.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Prevent row click from triggering
-                    if (confirm(`Are you sure you want to delete item: ${item.code}?`)) {
-                        inventoryData.splice(index, 1);
-                        saveToLocal();
-                        renderTable();
+            const excelData = [
+                ["Date Shift", dateShiftInput.value],
+                ["Time Counted", timeCountedInput.value],
+                [], // Empty row for spacing
+                // Headers based on selected columns
+                Object.keys(selectedColumns).filter(key => selectedColumns[key]).map(key => {
+                    // Convert camelCase to Title Case for headers
+                    switch(key) {
+                        case 'itemName': return 'Item Name';
+                        case 'itemCode': return 'Item Code';
+                        case 'previousCount': return 'Previous Count';
+                        case 'actualCount': return 'Actual Count';
+                        case 'variance': return 'Variance';
+                        default: return key;
                     }
-                });
+                })
+            ];
 
-                actionCell.appendChild(editBtn);
-                actionCell.appendChild(deleteBtn);
+            // Item data based on selected columns
+            selectedItems.forEach(item => {
+                const rowData = [];
+                if (selectedColumns.itemName) rowData.push(item.itemName);
+                if (selectedColumns.itemCode) rowData.push(item.itemCode);
+                if (selectedColumns.previousCount) rowData.push(item.previousCount);
+                if (selectedColumns.actualCount) rowData.push(item.actualCount);
+                if (selectedColumns.variance) rowData.push(item.variance);
+                excelData.push(rowData);
             });
-        }
-        // --- END Core Application Logic ---
 
+            const response = await fetch('/api/generate-excel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data: excelData })
+            });
 
-        // --- Event Listeners ---
-        addNewBtn.addEventListener("click", () => {
-            openModal(null); // Open modal for adding new item
-        });
-
-        saveBtn.addEventListener("click", () => {
-            const code = itemCodeInput.value.trim();
-            const countStr = itemCountInput.value.trim();
-            const remarksStr = itemRemarksInput.value.trim();
-
-            if (!code) {
-                alert("Item Code cannot be empty.");
+            if (!response.ok) {
+                alert("Failed to generate preview. Server error.");
                 return;
             }
 
-            // Parse count and remarks, removing empty strings
-            const count = countStr ? countStr.split(',').map(s => s.trim()).filter(s => s !== '') : [];
-            const remarks = remarksStr ? remarksStr.split(',').map(s => s.trim()).filter(s => s !== '') : [];
+            const excelBlob = await response.blob();
+            const url = URL.createObjectURL(excelBlob);
 
-            if (editIndex !== null) {
-                // Update existing item
-                inventoryData[editIndex] = { code, count, remarks };
-            } else {
-                // Add new item
-                inventoryData.push({ code, count, remarks });
-            }
-            saveToLocal();
-            closeModal(); // Close modal and re-render table
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Packaging_Inventory_Preview_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            closePreviewSelectionModal();
+            alert("Preview generated. Check your downloads.");
         });
 
-        cancelBtn.addEventListener("click", closeModal);
-        closeModalBtn.addEventListener("click", closeModal);
 
-
-        importBtn.addEventListener('click', () => {
-            importFile.click();
+        // --- IMPORT FILE HANDLING ---
+        importCountsBtn.addEventListener('click', () => {
+            importCountsFile.click();
         });
 
-        importFile.addEventListener('change', (event) => {
+        importCountsFile.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (!file) {
                 return;
@@ -389,28 +416,57 @@
                     const workbook = XLSX.read(data, { type: 'array' });
                     const sheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Get as array of arrays
 
-                    if (jsonData.length > 1) { // Assuming first row is header
-                        const importedData = [];
-                        for (let i = 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (row[0]) { // Ensure Item Code is not empty
-                                const code = String(row[0]).trim();
-                                const count = row[1] ? String(row[1]).split(',').map(s => s.trim()).filter(s => s !== '') : [];
-                                const remarks = row[2] ? String(row[2]).split(',').map(s => s.trim()).filter(s => s !== '') : [];
-                                importedData.push({ code, count, remarks });
+                    if (json.length < 2) { // Expect at least headers + 1 row of data
+                        alert("The imported file does not contain enough data.");
+                        return;
+                    }
+
+                    // Assuming first row is headers based on your desired format
+                    const headers = json[0];
+                    const dataRows = json.slice(1);
+
+                    const importMapping = {
+                        'Item Name': 'itemName',
+                        'Item Code': 'itemCode',
+                        'Previous Count': 'previousCount',
+                        'Actual Count': 'actualCount'
+                    };
+
+                    const newItems = [];
+                    let hasValidData = false;
+
+                    dataRows.forEach((row, rowIndex) => {
+                        const item = {};
+                        let rowHasData = false;
+                        headers.forEach((header, colIndex) => {
+                            const propName = importMapping[header.trim()];
+                            if (propName) {
+                                let value = row[colIndex];
+                                if (propName === 'previousCount' || propName === 'actualCount') {
+                                    value = parseInt(value) || 0; // Ensure it's a number
+                                }
+                                item[propName] = value;
+                                if (value !== undefined && value !== null && value !== '' && (typeof value !== 'number' || value !== 0)) {
+                                    rowHasData = true; // Mark row as having meaningful data
+                                }
                             }
-                        }
-                        if (importedData.length > 0) {
-                            inventoryData = [...inventoryData, ...importedData]; // Append imported data
-                            saveToLocal();
-                            renderTable();
-                            alert("Countsheet imported successfully!");
-                        } else {
-                            alert("No valid item data found in the imported countsheet.");
-                        }
+                        });
 
+                        if (rowHasData && item.itemName && item.itemCode) { // Only add if it has name and code
+                            item.id = Date.now() + rowIndex; // Simple ID generation for imported items
+                            item.variance = (item.actualCount || 0) - (item.previousCount || 0);
+                            newItems.push(item);
+                            hasValidData = true;
+                        }
+                    });
+
+                    if (hasValidData) {
+                        items = [...items, ...newItems]; // Add imported items to existing
+                        saveToLocal();
+                        renderTable();
+                        alert("Countsheet imported successfully!");
                     } else {
                         alert("No valid item data found in the imported countsheet.");
                     }
@@ -426,108 +482,11 @@
             };
 
             reader.readAsArrayBuffer(file);
-            event.target.value = ''; // Clear the file input
+            event.target.value = '';
         });
+        // --- END IMPORT FILE HANDLING ---
 
-        // --- EXCEL EXPORT (SERVERLESS FUNCTION - UPDATED) ---
-        exportBtn.addEventListener('click', async () => {
-            const dateShift = dateShiftInput.value;
-            const timeCounted = timeCountedInput.value;
 
-            // Prepare data for the serverless function
-            const dataToExport = {
-                dateShift,
-                timeCounted,
-                inventoryData: inventoryData
-            };
-
-            try {
-                const response = await fetch('/api/generate-excel', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dataToExport)
-                });
-
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    // Ensure the filename is dynamic based on current date/time
-                    const filename = `inventory_report_${dateShift.replace(/\//g, '-')}_${timeCounted.replace(/:/g, '-')}.xlsx`;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                    alert('Excel report generated successfully!');
-                } else {
-                    const errorText = await response.text();
-                    alert(`Failed to generate Excel report: ${errorText}`);
-                }
-            } catch (error) {
-                console.error('Error generating Excel report:', error);
-                alert('An error occurred while generating the Excel report.');
-            }
-        });
-        // --- END EXCEL EXPORT ---
-
-        clearDataBtn.addEventListener('click', () => {
-            if (confirm("Are you sure you want to clear all inventory data? This cannot be undone.")) {
-                inventoryData = [];
-                saveToLocal();
-                renderTable();
-                alert("All inventory data cleared.");
-            }
-        });
-
-        previewBtn.addEventListener('click', openPreviewSelectionModal);
-        generatePreviewBtn.addEventListener('click', () => {
-            const selectedIndices = Array.from(previewCheckboxes.querySelectorAll('input[type="checkbox"]:checked'))
-                                       .map(checkbox => parseInt(checkbox.value));
-            
-            if (selectedIndices.length === 0) {
-                alert("Please select at least one item to preview.");
-                return;
-            }
-
-            const previewData = selectedIndices.map(index => inventoryData[index]);
-
-            // --- Client-side Preview Generation (similar to old export logic, but for display) ---
-            const workbook = XLSX.utils.book_new();
-            const worksheetData = [
-                ['Date/Shift:', dateShiftInput.value],
-                ['Time Counted:', timeCountedInput.value],
-                [], // Empty row for spacing
-                ['Item Code', 'Count', 'Remarks']
-            ];
-
-            previewData.forEach(item => {
-                worksheetData.push([item.code, item.count.join(', '), item.remarks.join(', ')]);
-            });
-
-            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Preview");
-
-            // Convert to base64 for display or offer download option (example below)
-            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const url = URL.createObjectURL(blob);
-
-            // Open in a new tab (or you could embed it, or offer download)
-            window.open(url, '_blank');
-            URL.revokeObjectURL(url); // Clean up URL object
-
-            closePreviewSelectionModal();
-            alert("Preview generated. Check the new tab/window.");
-        });
-
-        cancelPreviewBtn.addEventListener('click', closePreviewSelectionModal);
-        closePreviewSelectionModalBtn.addEventListener('click', closePreviewSelectionModal);
-
-        // Set initial date and time on load
         setDateBtn.addEventListener('click', () => {
             const today = new Date();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
