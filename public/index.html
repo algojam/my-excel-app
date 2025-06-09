@@ -10,23 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <style>
-        body {
-            font-family: 'Roboto Slab', serif;
-            background-color: white;
-            color: #1a202c; /* Tailwind gray-900 */
-        }
-        .handwritten {
-            font-family: 'Courier New', monospace;
-            font-style: italic;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-        }
-        .italic {
-            font-style: italic;
-        }
-        input, button, textarea, select {
-            font-family: 'Roboto Slab', serif;
-        }
+        body { font-family: 'Roboto Slab', serif; background-color: white; }
+        .handwritten { font-family: 'Courier New', monospace; font-style: italic; font-weight: 600; letter-spacing: 0.03em; }
+        .italic { font-style: italic; }
+        input, button, textarea, select { font-family: 'Roboto Slab', serif; }
 
         .inventory-table-container {
             overflow-x: auto;
@@ -34,177 +21,343 @@
         .inventory-table {
             width: 100%;
             border-collapse: collapse;
-        }
-        .inventory-table th, .inventory-table td {
-            border: 1px solid #cbd5e0; /* Tailwind gray-300 */
-            padding: 0.5rem 0.75rem;
+            border: 1px solid black;
             text-align: left;
-            vertical-align: top;
+            table-layout: fixed;
         }
-        .inventory-table th {
-            background-color: #e2e8f0; /* Tailwind blue-gray-200 */
-            font-weight: 700;
-            color: #2d3748; /* Tailwind gray-700 */
+        .inventory-table thead th {
+            border: 1px solid black;
+            padding: 8px 10px;
             text-align: center;
+            background-color: #e2e8f0;
         }
-        .inventory-table td {
-            background-color: white;
+        .inventory-table tbody td {
+            border: 1px solid black;
+            padding: 8px 10px;
+            vertical-align: middle;
+            min-height: 40px;
         }
-        .inventory-table tr:nth-child(even) td {
-            background-color: #f7fafc; /* Tailwind gray-50 */
+        .inventory-table tbody tr {
+            height: 100%;
         }
-
-        /* Custom styling for remarks-based rows */
-        .row-hold td { background-color: #fefcbf; /* Tailwind yellow-100 */ }
-        .row-approved td { background-color: #fee2e2; /* Tailwind red-100 (assuming red for approved, adjust if needed) */ }
-        .row-first-out td { background-color: #d1fae5; /* Tailwind green-100 */ }
-
-        /* Styling for the Add Item Form */
-        .form-row {
+        .inventory-table tbody tr:hover {
+            background-color: #f3f4f6;
+        }
+        .item-code-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .count-breakdown-cell {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            padding: 0;
         }
-        .form-field {
-            flex: 1;
-            min-width: 150px; /* Minimum width for fields */
+        .count-breakdown-cell > div:first-child {
+            flex-grow: 1;
+            padding: 8px 10px;
+            white-space: normal;
         }
-        .form-field label {
-            display: block;
-            margin-bottom: 0.25rem;
-            font-weight: 600;
-        }
-        .form-field input[type="text"],
-        .form-field textarea {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #cbd5e0;
-            border-radius: 0.25rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .form-field input[type="text"]:focus,
-        .form-field textarea:focus {
-            border-color: #63b3ed; /* Tailwind blue-400 */
-        }
-        .form-field textarea {
-            resize: vertical;
-            min-height: 40px; /* Adjusted min-height for count breakdown */
-        }
-        .form-field-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-grow: 0;
+        .count-breakdown-cell > div:last-child {
             flex-shrink: 0;
+            margin-left: 1rem;
+            padding: 4px 8px;
+            border: 1px solid black;
+        }
+
+        @media (max-width: 640px) {
+            .inventory-table thead {
+                display: none;
+            }
+            .inventory-table tbody, .inventory-table tr, .inventory-table td {
+                display: block;
+                width: 100%;
+            }
+            .inventory-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid black;
+            }
+            .inventory-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            .inventory-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 45%;
+                padding-left: 10px;
+                font-weight: bold;
+                text-align: left;
+            }
+            .item-code-cell::before { content: "ITEM CODE:"; }
+            .count-breakdown-cell::before { content: "ACTUAL COUNT BREAKDOWN:"; }
         }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-lg p-6">
-        <h1 class="text-3xl font-extrabold text-center mb-6 text-gray-800">PACKAGING MATERIALS DAILY COUNT SHEET</h1>
-
-        <div class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div class="flex items-center gap-2">
-                    <label for="dateShift" class="font-semibold text-gray-700">Date / Shift :</label>
-                    <input type="text" id="dateShift" class="flex-grow handwritten p-1 border-b border-gray-400 focus:border-blue-500 outline-none text-gray-800" readonly>
-                    <button id="setDateBtn" class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-150">
-                        <i class="fas fa-calendar-alt"></i> Set Date
+<body class="p-4 max-w-[900px] mx-auto">
+    <div class="border border-black rounded-md shadow-sm">
+        <header class="px-4 pt-4 pb-2 border-b border-black rounded-t-md">
+            <h1 class="font-extrabold text-3xl text-center uppercase leading-tight text-gray-900">
+                PACKAGING MATERIALS DAILY COUNT SHEET - <span class="italic font-semibold text-gray-700">COHIN (BLDG. 1&amp;3)</span>
+            </h1>
+            <div class="flex flex-col sm:flex-row justify-between mt-4 text-sm font-semibold gap-3 sm:gap-0 text-gray-700">
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <label>Date / Shift :</label>
+                    <input type="text" id="dateShift" class="handwritten border-b border-gray-400 w-full sm:w-[180px] bg-transparent focus:outline-none text-sm" />
+                    <button type="button" id="setDateBtn" class="ml-2 px-2 py-1 border border-gray-400 rounded text-xs handwritten hover:bg-gray-100" title="Set current date">
+                        <i class="fas fa-calendar-alt"></i>
                     </button>
                 </div>
-                <div class="flex items-center gap-2">
-                    <label for="timeCounted" class="font-semibold text-gray-700">TIME COUNTED:</label>
-                    <input type="text" id="timeCounted" class="flex-grow handwritten p-1 border-b border-gray-400 focus:border-blue-500 outline-none text-gray-800" readonly>
-                    <button id="setTimeBtn" class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-150">
-                        <i class="fas fa-clock"></i> Set Time
+                <div class="flex items-center space-x-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <label>Shift:</label>
+                    <select id="shiftSelect" class="border-b border-gray-400 w-full sm:w-[150px] bg-transparent focus:outline-none text-sm handwritten">
+                        <option value="">Select Shift</option>
+                        <option value="Day Shift">Day Shift</option>
+                        <option value="Night Shift">Night Shift</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <label>TIME COUNTED:</label>
+                    <input type="time" id="timeCounted" class="border-b border-gray-400 w-full sm:w-[200px] bg-transparent focus:outline-none text-sm" />
+                    <button type="button" id="setTimeBtn" class="ml-2 px-2 py-1 border border-gray-400 rounded text-xs handwritten hover:bg-gray-100" title="Set current time">
+                        <i class="fas fa-clock"></i>
                     </button>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <label for="shiftSelect" class="font-semibold text-gray-700">Shift:</label>
-                <select id="shiftSelect" class="p-1 border-b border-gray-400 focus:border-blue-500 outline-none text-gray-800 rounded-md">
-                    <option value="Day Shift">Day Shift</option>
-                    <option value="Night Shift">Night Shift</option>
+        </header>
+
+        <section class="px-4 py-3 border-b border-black flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex gap-2 items-center flex-wrap">
+                <input type="text" id="searchInput" placeholder="Search item code or count breakdown..." class="border border-gray-400 rounded px-2 py-1 w-full sm:w-80 focus:outline-none handwritten" />
+                <select type="text" id="tagFilter" placeholder="Search item code or count breakdown..." class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="all">All Items</option>
+                    <option value="hold">Hold</option>
+                    <option value="approved">Approved</option>
+                    <option value="first out">First Out</option>
+                    <option value="old">Old</option>
+                </select>
+                <select id="dataFilterSelect" class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="all_data_items">All Data Items</option>
+                    <option value="with_data">With Data</option>
+                    <option value="no_data">Without Data</option>
+                </select>
+                <select id="itemTypeFilter" class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="">All Item Types</option>
+                    <option value="LBL">LBL</option>
+                    <option value="CTN">CTN</option>
+                    <option value="BAG">BAG</option>
+                </select>
+                <select id="sortFilter" class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="untouched">Untouched Sorting</option>
+                    <option value="az">A to Z (Item Code)</option>
+                    <option value="za">Z to A (Item Code)</option>
                 </select>
             </div>
-        </div>
-
-        <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h2 class="text-xl font-bold mb-4 text-gray-700">Add New Item</h2>
-            <div class="form-row">
-                <div class="form-field flex-grow">
-                    <label for="itemCode">Item Code:</label>
-                    <input type="text" id="itemCode" placeholder="Enter item code (e.g., PM001)" class="w-full">
-                </div>
-                <div class="form-field flex-grow-2">
-                    <label for="countBreakdown">Actual Count Breakdown:</label>
-                    <textarea id="countBreakdown" rows="2" placeholder="e.g., 10×5, 20+5, 10-2" class="w-full"></textarea>
-                    <p class="text-sm text-gray-500 mt-1">Use comma or new line for multiple counts. Use × for multiplication, + for addition, - for subtraction.</p>
-                </div>
-                <div class="form-field flex-grow">
-                    <label for="remarks">Remarks (optional):</label>
-                    <textarea id="remarks" rows="2" placeholder="e.g., hold, approved, first out" class="w-full"></textarea>
-                    <p class="text-sm text-gray-500 mt-1">Separate multiple remarks with a comma or new line.</p>
-                </div>
-                <div class="form-field-buttons items-end">
-                    <button id="addItemBtn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-150 whitespace-nowrap">
-                        <i class="fas fa-plus-circle"></i> Add Item
-                    </button>
-                </div>
+            <div class="flex gap-2 flex-wrap items-center">
+                <button id="addNewBtn" class="border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Add New Item">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="previewBtn" class="border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Preview Items">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button id="exportBtn" class="border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Export to Excel">
+                    <i class="fas fa-file-export"></i>
+                </button>
+                <label for="importFile" class="cursor-pointer border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Import Data">
+                    <i class="fas fa-file-import"></i>
+                </label>
+                <input type="file" id="importFile" accept=".xlsx,.xls" class="hidden" />
+                <button id="exportJsonBtn" class="border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Export to JSON">
+                    <i class="fas fa-file-code"></i>
+                </button>
+                <label for="importCountsheetFile" class="cursor-pointer border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Import Countsheet">
+                    <i class="fas fa-upload"></i>
+                </label>
+                <input type="file" id="importCountsheetFile" accept=".xlsx,.xls" class="hidden" />
+                <button id="exportCountsheetBtn" class="border border-gray-400 rounded px-2 py-1 handwritten hover:bg-gray-100 flex items-center justify-center" title="Export Countsheet">
+                    <i class="fas fa-file-download"></i>
+                </button>
             </div>
-        </div>
+        </section>
 
-        <div class="inventory-table-container shadow-md rounded-lg mb-8">
-            <table id="inventoryTable" class="inventory-table">
+        <section class="inventory-table-container">
+            <table class="inventory-table text-[13px] rounded-md shadow-sm">
                 <thead>
                     <tr>
-                        <th>ITEM CODE</th>
+                        <th class="text-left italic">ITEM CODE</th>
                         <th>ACTUAL COUNT BREAKDOWN</th>
-                        <th>TOTAL</th>
-                        <th>REMARKS</th>
-                        <th class="w-24">ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody>
-                    </tbody>
+                <tbody id="inventoryTable" class="divide-y divide-gray-400"></tbody>
             </table>
-        </div>
+        </section>
+    </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-white rounded-lg">
-            <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                <button id="exportBtn" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition duration-150 flex items-center justify-center gap-2">
-                    <i class="fas fa-file-excel"></i> Export to Excel
-                </button>
-                <label for="importFile" class="bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 transition duration-150 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap">
-                    <i class="fas fa-upload"></i> Import Countsheet
-                    <input type="file" id="importFile" accept=".xlsx,.xls" class="hidden">
-                </label>
-            </div>
-            <button id="clearAllBtn" class="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 transition duration-150 flex items-center justify-center gap-2 w-full md:w-auto">
-                <i class="fas fa-trash-alt"></i> Clear All Data
-            </button>
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white border border-gray-400 rounded-md shadow-lg w-full max-w-md p-6 relative font-sans">
+            <h2 id="modalTitle" class="text-lg font-bold mb-4 uppercase">Add New Item</h2>
+            <form id="itemForm" class="flex flex-col gap-4">
+                <div>
+                    <label class="block font-semibold mb-1 italic text-gray-700">ITEM CODE</label>
+                    <input type="text" id="itemCode" name="itemCode" required class="w-full border border-gray-400 rounded px-3 py-2 handwritten text-gray-800" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 italic text-gray-700">ACTUAL COUNT BREAKDOWN</label>
+                    <textarea id="itemCount" name="itemCount" class="w-full border border-gray-400 rounded px-3 py-2 handwritten text-gray-800" placeholder="Enter breakdown separated by |" rows="3"></textarea>
+                </div>
+                <div id="remarksContainer"></div>
+                <div class="flex justify-end gap-3 pt-2 border-t border-gray-400">
+                    <button type="button" id="cancelBtn" class="px-4 py-1 rounded border border-gray-400 hover:bg-gray-100 handwritten">Cancel</button>
+                    <button type="submit" class="px-4 py-1 rounded border border-black bg-black text-white handwritten hover:bg-gray-800">Save</button>
+                    <button type="button" id="deleteBtn" class="px-4 py-1 rounded border border-red-600 text-red-600 hover:bg-red-100 handwritten hidden">Delete</button>
+                </div>
+                <button id="closeModalBtn" class="absolute top-3 right-3 text-black hover:text-gray-700"><i class="fas fa-times"></i></button>
+            </form>
         </div>
     </div>
 
+    <div id="previewSelectionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white border border-gray-400 rounded-md shadow-lg w-full max-w-lg p-6 relative font-sans">
+            <h2 class="text-lg font-bold mb-4 uppercase">Select Items for Preview</h2>
+            <div class="mb-4 flex gap-2 flex-wrap">
+                <input type="text" id="previewSearchInput" placeholder="Search item code..." class="border border-gray-400 rounded px-2 py-1 flex-grow focus:outline-none handwritten" />
+                <select id="previewItemTypeFilter" class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="">All Item Types</option>
+                    <option value="LBL">LBL</option>
+                    <option value="CTN">CTN</option>
+                    <option value="BAG">BAG</option>
+                </select>
+                <select id="previewDataFilterSelect" class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="all">All Items</option>
+                    <option value="with_data">With Data</option>
+                    <option value="no_data">Without Data</option>
+                </select>
+                <select id="previewSortFilter" class="border border-gray-400 rounded px-2 py-1 handwritten">
+                    <option value="untouched">Untouched Sorting</option>
+                    <option value="az">A to Z (Item Code)</option>
+                    <option value="za">Z to A (Item Code)</option>
+                </select>
+            </div>
+            <div id="itemCodeCheckboxes" class="max-h-60 overflow-y-auto border border-gray-300 p-2 rounded mb-4">
+            </div>
+            <div class="flex justify-end gap-3 pt-2 border-t border-gray-400">
+                <button type="button" id="cancelPreviewBtn" class="px-4 py-1 rounded border border-gray-400 hover:bg-gray-100 handwritten">Cancel</button>
+                <button type="button" id="generatePreviewBtn" class="px-4 py-1 rounded border border-black bg-black text-white handwritten hover:bg-gray-800">Generate Preview</button>
+            </div>
+            <button id="closePreviewSelectionModalBtn" class="absolute top-3 right-3 text-black hover:text-gray-700"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+
     <script>
-        const itemCodeInput = document.getElementById('itemCode');
-        const countBreakdownInput = document.getElementById('countBreakdown');
-        const remarksInput = document.getElementById('remarks');
-        const addItemBtn = document.getElementById('addItemBtn');
-        const inventoryTableBody = document.querySelector('#inventoryTable tbody');
-        const exportBtn = document.getElementById('exportBtn');
-        const clearAllBtn = document.getElementById('clearAllBtn');
+        let inventoryData = [];
+        let currentlyFilteredPreviewItems = []; // This will hold codes of items CHECKED in the preview modal
+        let currentDataFilterType = "all_data_items";
+
+        // DOM element refs
+        const inventoryTable = document.getElementById("inventoryTable");
+        const searchInput = document.getElementById("searchInput");
+        const tagFilter = document.getElementById("tagFilter");
+        const dataFilterSelect = document.getElementById("dataFilterSelect");
+        const itemTypeFilter = document.getElementById("itemTypeFilter");
+        const sortFilter = document.getElementById("sortFilter");
+        const addNewBtn = document.getElementById("addNewBtn");
+        const previewBtn = document.getElementById("previewBtn");
+        const exportBtn = document.getElementById("exportBtn");
+        const exportJsonBtn = document.getElementById("exportJsonBtn");
+        const importFile = document.getElementById("importFile");
+        const importCountsheetFile = document.getElementById("importCountsheetFile"); // Corrected ID
+        const modal = document.getElementById("modal");
+        const modalTitle = document.getElementById("modalTitle");
+        const itemForm = document.getElementById("itemForm");
+        const itemCodeInput = document.getElementById("itemCode");
+        const itemCountInput = document.getElementById("itemCount");
+        const remarksContainer = document.getElementById("remarksContainer");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const deleteBtn = document.getElementById("deleteBtn");
+
         const dateShiftInput = document.getElementById('dateShift');
         const timeCountedInput = document.getElementById('timeCounted');
         const setDateBtn = document.getElementById('setDateBtn');
         const setTimeBtn = document.getElementById('setTimeBtn');
         const shiftSelect = document.getElementById('shiftSelect');
-        const importFile = document.getElementById('importFile');
 
-        let inventoryData = [];
+        const previewSelectionModal = document.getElementById('previewSelectionModal');
+        const itemCodeCheckboxesContainer = document.getElementById('itemCodeCheckboxes');
+        const previewSearchInput = document.getElementById('previewSearchInput');
+        const previewItemTypeFilter = document.getElementById('previewItemTypeFilter');
+        const previewDataFilterSelect = document.getElementById('previewDataFilterSelect');
+        const previewSortFilter = document.getElementById('previewSortFilter');
 
-        // Helper function to calculate total from breakdown
+        const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+        const generatePreviewBtn = document.getElementById('generatePreviewBtn');
+        const closePreviewSelectionModalBtn = document.getElementById('closePreviewSelectionModalBtn');
+
+        const exportCountsheetBtn = document.getElementById('exportCountsheetBtn');
+
+        let editIndex = null;
+
+        // Storage load/save
+        function saveToLocal() {
+            localStorage.setItem("inventoryData", JSON.stringify(inventoryData));
+        }
+
+        function loadFromLocal() {
+            const stored = localStorage.getItem("inventoryData");
+            if (stored) {
+                try {
+                    inventoryData = JSON.parse(stored);
+                } catch {
+                    inventoryData = [];
+                }
+            } else {
+                // Initial data for demonstration
+                inventoryData = [
+                    { code: "LBL-4XBQ-UA85G", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-4XBQL24G_NS", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "CTN-C492S-30009", count: ["", ""], remarks: ["", ""] },
+                    { code: "BAG-L5961021", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-4XCH-UA85G", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-4XCHL24G_NS", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-4XSWCL24G", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-BGML24G-VL-ND", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-BGMX5G-EXP_NS", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-BIZCHSDG48G", count: ["", "", ""], remarks: ["", "", ""] },
+                    { code: "LBL-BIZSCODG48G", count: ["", "", ""], remarks: ["", "", ""] }
+                ];
+            }
+        }
+
+        // Sorting (no longer used for permanent sort, only for display)
+        function sortInventory() {
+            // This function is no longer called for permanent sorting.
+            // Sorting logic is now within renderTable() for display only.
+        }
+
+        // Remark badge formatter
+        function getRemarkBadge(remark) {
+            if (!remark) return "";
+            const r = remark.toLowerCase();
+            // Check if the remark contains the keywords instead of exact match
+            if (r.includes("hold"))
+                return `<span class="text-xs font-semibold px-1 rounded uppercase bg-yellow-100 text-yellow-800">Hold</span>`;
+            if (r.includes("approved"))
+                return `<span class="text-xs font-semibold px-1 rounded uppercase bg-pink-100 text-pink-800">Approved</span>`;
+            if (r.includes("first out"))
+                return `<span class="text-xs font-semibold px-1 rounded uppercase bg-green-100 text-green-800">First Out</span>`;
+            if (r.includes("old"))
+                return `<span class="text-xs font-semibold px-1 rounded uppercase bg-green-100 text-green-800">Old</span>`;
+            return `<span class="text-xs font-semibold px-1 rounded uppercase bg-gray-200 text-gray-800">${remark}</span>`;
+        }
+
+        // Calculate total count (value)
         function calculateTotal(countArr) {
             if (!Array.isArray(countArr)) {
                 return 0;
@@ -213,7 +366,7 @@
             countArr.forEach(part => {
                 const trimmedVal = part.trim();
                 if (trimmedVal === "") {
-                    return;
+                    return; // Continue to next iteration
                 }
                 if (trimmedVal.includes('×')) {
                     const parts = trimmedVal.split('×');
@@ -224,11 +377,11 @@
                             total += (num1 * num2);
                         }
                     }
-                } else if (trimmedVal.includes('+')) {
+                } else if (trimmedVal.includes('+')) { // Handle sums like "10+5"
                     const sumParts = trimmedVal.split('+').map(p => parseFloat(p.trim()));
                     const sum = sumParts.reduce((acc, val) => acc + (isNaN(val) ? 0 : val), 0);
                     total += sum;
-                } else if (trimmedVal.includes('-')) {
+                } else if (trimmedVal.includes('-')) { // Handle subtraction
                     const subParts = trimmedVal.trim().split('-');
                     if (subParts.length > 0) {
                         const initialValue = parseFloat(subParts[0].trim());
@@ -253,226 +406,817 @@
             return total;
         }
 
-        // Helper function to generate Excel formula string
+        // UPDATED: Generate Excel formula string from breakdown parts (removed leading '=')
         function generateExcelFormula(countArr) {
             if (!Array.isArray(countArr) || countArr.length === 0) {
-                return "0";
+                return "0"; // Return "0" if no parts, formula will be =0
             }
 
             const parsedParts = countArr.map(part => {
                 const trimmedVal = part.trim();
                 if (trimmedVal === "") {
-                    return "0";
+                    return "0"; // Treat empty part as 0 in formula
                 }
+                // Replace '×' with '*' for Excel
                 let formattedPart = trimmedVal.replace(/×/g, '*');
 
-                // Wrap sums/subtractions in parentheses to ensure correct order of operations in Excel
+                // Add parentheses only if the part contains addition or subtraction,
+                // to ensure correct order of operations when joined by '+'.
                 if (formattedPart.includes('+') || formattedPart.includes('-')) {
                     return `(${formattedPart})`;
                 }
+                // For simple numbers or multiplication/division, no parentheses needed for external summing.
                 return formattedPart;
             });
 
-            // Join all parts with '+' for the final Excel formula
-            return parsedParts.join('+');
+            return parsedParts.join('+'); // Removed the leading '='
         }
 
-        // Render table rows
-        function renderTable() {
-            inventoryTableBody.innerHTML = '';
-            inventoryData.forEach((item, index) => {
-                const row = inventoryTableBody.insertRow();
-                let rowClass = '';
-                if (item.remarks.some(r => r.toLowerCase().includes("hold"))) {
-                    rowClass = 'row-hold';
-                } else if (item.remarks.some(r => r.toLowerCase().includes("approved"))) {
-                    rowClass = 'row-approved';
-                } else if (item.remarks.some(r => r.toLowerCase().includes("first out") || r.toLowerCase().includes("old"))) {
-                    rowClass = 'row-first-out';
+        // Remark to background color style class
+        function getBgColorClassForRemark(remark) {
+            const r = remark.toLowerCase();
+            // Check for specific keywords first
+            if (r.includes("hold")) return "bg-yellow-300 text-black";
+            if (r.includes("approved")) return "bg-pink-300 text-black";
+            // Then check for "first out" or "old"
+            if (r.includes("first out") || r.includes("old")) return "bg-green-300 text-black";
+            return "bg-white text-black";
+        }
+        // Render remarks inputs in modal
+        function renderRemarksInputs(countParts, existingRemarks = []) {
+            remarksContainer.innerHTML = "";
+            for (let i = 0; i < countParts.length; i++) {
+                const remarkValue = existingRemarks[i] || "";
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-2 mb-1";
+                div.innerHTML = `
+                    <label class="italic font-semibold text-xs flex-shrink-0 w-[90px]">Remark ${i + 1}:</label>
+                    <input type="text" data-index="${i}" class="w-full border border-gray-400 rounded px-2 py-1 handwritten text-xs text-gray-800" value="${remarkValue}" placeholder="e.g. Hold, Approved" />
+                    <span class="ml-2">${getRemarkBadge(remarkValue)}</span>
+                `;
+                remarksContainer.appendChild(div);
+
+                const input = div.querySelector("input");
+                input.addEventListener("input", () => {
+                    const val = input.value.trim();
+                    div.querySelector("span").innerHTML = getRemarkBadge(val);
+                });
+            }
+        }
+
+        // Helper to check if an item has data
+        function hasData(item) {
+            return Array.isArray(item.count) && item.count.some(c => c.trim() !== '');
+        }
+
+        // Get filtered items based on current main table filters
+        function getFilteredItems() {
+            const searchText = searchInput.value.trim().toLowerCase();
+            const selectedTagFilter = tagFilter.value.trim().toLowerCase();
+            const selectedDataFilter = dataFilterSelect.value.trim().toLowerCase();
+            const itemType = itemTypeFilter.value.trim().toLowerCase();
+
+            return inventoryData.filter(item => {
+                const codeLower = item.code.toLowerCase();
+                const countStr = Array.isArray(item.count) ? item.count.join(" | ").toLowerCase() : "";
+                const remarksArray = Array.isArray(item.remarks) ? item.remarks : [];
+                const remarksStr = remarksArray.join(" | ").toLowerCase();
+
+                const matchesSearch = (!searchText || codeLower.includes(searchText) || countStr.includes(searchText) || remarksStr.includes(searchText));
+
+                let matchesTagFilter = true;
+                if (selectedTagFilter !== 'all') {
+                    if (selectedTagFilter === "old" || selectedTagFilter === "first out") {
+                        matchesTagFilter = remarksArray.some(r => r.toLowerCase().includes("old") || r.toLowerCase().includes("first out"));
+                    } else {
+                        matchesTagFilter = remarksArray.some(r => r.toLowerCase().includes(selectedTagFilter));
+                    }
                 }
-                row.className = rowClass;
 
-                row.insertCell(0).textContent = item.code;
-                row.insertCell(1).textContent = item.count.join(' | '); // Display as string
-                row.insertCell(2).textContent = calculateTotal(item.count); // Display calculated total
-                row.insertCell(3).textContent = item.remarks.join(' | '); // Display as string
+                let matchesDataFilter = true;
+                if (selectedDataFilter === 'with_data') {
+                    matchesDataFilter = hasData(item);
+                } else if (selectedDataFilter === 'no_data') {
+                    matchesDataFilter = !hasData(item);
+                }
 
-                const actionsCell = row.insertCell(4);
-                actionsCell.className = "text-center";
-                const deleteBtn = document.createElement('button');
-                deleteBtn.innerHTML = '<i class="fas fa-trash-alt text-red-500 hover:text-red-700"></i>';
-                deleteBtn.className = 'p-2 rounded-md transition duration-150';
-                deleteBtn.onclick = () => deleteItem(index);
-                actionsCell.appendChild(deleteBtn);
+                let matchesItemType = true;
+                if (itemType) {
+                    if (itemType === "bag") {
+                        matchesItemType = codeLower.startsWith("bag") || codeLower.startsWith("bundles");
+                    } else {
+                        matchesItemType = codeLower.startsWith(itemType);
+                    }
+                }
+
+                return matchesSearch && matchesTagFilter && matchesDataFilter && matchesItemType;
             });
-            saveToLocal();
         }
 
-        // Add new item
-        addItemBtn.addEventListener('click', () => {
-            const code = itemCodeInput.value.trim();
-            const count = countBreakdownInput.value.split(/[\n,]+/).map(s => s.trim()).filter(s => s !== '');
-            const remarks = remarksInput.value.split(/[\n,]+/).map(s => s.trim()).filter(s => s !== '');
+        // Render inventory table with filters and sorting
+        function renderTable() {
+            const itemsToRender = getFilteredItems();
+            const sortOrder = sortFilter.value;
 
-            if (code && count.length > 0) {
-                inventoryData.push({ code, count, remarks });
-                renderTable();
-                itemCodeInput.value = '';
-                countBreakdownInput.value = '';
-                remarksInput.value = '';
+            inventoryTable.innerHTML = "";
+
+            // Apply sorting based on the selected option
+            if (sortOrder === "az") {
+                itemsToRender.sort((a, b) => a.code.localeCompare(b.code));
+            } else if (sortOrder === "za") {
+                itemsToRender.sort((a, b) => b.code.locale('en', {sensitivity: 'base'}).localeCompare(a.code.locale('en', {sensitivity: 'base'})));
+            }
+
+            itemsToRender.forEach(item => {
+                const breakdownHTML = (Array.isArray(item.count) && item.count.length > 0)
+                    ? item.count.map((countVal, j) => {
+                        const remarkVal = (item.remarks && item.remarks[j]) ? item.remarks[j] : "";
+                        const bgColorClass = getBgColorClassForRemark(remarkVal);
+                        return `<span class="${bgColorClass} font-semibold px-1 rounded" title="${remarkVal}">${countVal}</span>`;
+                    }).join(' <span class="mx-1">|</span> ')
+                    : '<span class="italic text-gray-500">No breakdown</span>';
+
+                const total = calculateTotal(item.count);
+
+                const tr = document.createElement("tr");
+                tr.className = "cursor-pointer hover:bg-gray-100";
+                tr.innerHTML = `
+                    <td class="item-code-cell italic font-semibold" data-label="ITEM CODE">${item.code}</td>
+                    <td class="count-breakdown-cell" data-label="ACTUAL COUNT BREAKDOWN">
+                        <div>${breakdownHTML}</div>
+                        <div class="font-bold border border-gray-400 px-2 py-0.5">Total: ${total}</div>
+                    </td>
+                `;
+                tr.addEventListener('click', () => {
+                    const originalIndex = inventoryData.findIndex(dataItem => dataItem.code === item.code);
+                    if (originalIndex !== -1) {
+                        openModal(originalIndex);
+                    }
+                });
+                inventoryTable.appendChild(tr);
+            });
+
+            if (inventoryTable.children.length === 0) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td colspan="2" class="text-center py-4 italic text-gray-600">No items found.</td>`;
+                inventoryTable.appendChild(tr);
+            }
+        }
+
+        // Modal open/close
+        function openModal(index) {
+            itemForm.reset();
+            Array.from(itemForm.elements).forEach(element => { if (element.setCustomValidity) element.setCustomValidity(''); });
+            remarksContainer.innerHTML = "";
+
+            editIndex = index;
+            if (index === null) {
+                modalTitle.textContent = "Add New Item";
+                deleteBtn.classList.add("hidden");
             } else {
-                alert('Please enter Item Code and at least one Count Breakdown.');
+                modalTitle.textContent = "Edit Item";
+                const item = inventoryData[index];
+                itemCodeInput.value = item.code;
+                itemCountInput.value = Array.isArray(item.count) ? item.count.join(" | ") : "";
+                renderRemarksInputs(Array.isArray(item.count) ? item.count : [], Array.isArray(item.remarks) ? item.remarks : []);
+                deleteBtn.classList.remove("hidden");
+            }
+
+            modal.classList.remove("hidden");
+            setTimeout(() => { itemCodeInput.focus(); }, 50);
+        }
+
+        function closeModal() {
+            modal.classList.add("hidden");
+            editIndex = null;
+            remarksContainer.innerHTML = "";
+            itemForm.reset();
+            Array.from(itemForm.elements).forEach(element => { if (element.setCustomValidity) element.setCustomValidity(''); });
+            renderTable();
+        }
+
+        // Preview selection modal
+        function openPreviewSelectionModal() {
+            itemCodeCheckboxesContainer.innerHTML = '';
+            previewSearchInput.value = '';
+            previewItemTypeFilter.value = '';
+            previewDataFilterSelect.value = 'all';
+            previewSortFilter.value = 'untouched'; // Reset preview modal's sort filter
+
+            // Get items filtered by main table filters, ALREADY SORTED
+            const mainFilteredAndSortedItems = getFilteredItems();
+            const mainSortOrder = sortFilter.value; // Get the current main table sort order
+
+            // Apply main table's sort to the items if "untouched" is chosen in modal
+            if (mainSortOrder === "az") {
+                mainFilteredAndSortedItems.sort((a, b) => a.code.localeCompare(b.code));
+            } else if (mainSortOrder === "za") {
+                mainFilteredAndSortedItems.sort((a, b) => b.code.locale('en', {sensitivity: 'base'}).localeCompare(a.code.locale('en', {sensitivity: 'base'})));
+            }
+
+
+            // Reset currentlyFilteredPreviewItems based on main filtered and sorted items
+            currentlyFilteredPreviewItems = mainFilteredAndSortedItems.map(item => item.code);
+
+            // Create checkboxes for ALL items that match the main table filters
+            // and check them by default. These should already be in the desired order.
+            mainFilteredAndSortedItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center space-x-2 py-1';
+                div.innerHTML = `
+                    <input type="checkbox" id="preview-${item.code}" value="${item.code}" class="item-code-checkbox" checked>
+                    <label for="preview-${item.code}" class="cursor-pointer">${item.code}</label>
+                `;
+                itemCodeCheckboxesContainer.appendChild(div);
+            });
+
+            // Apply preview modal's own filters on top of the initial selection
+            // This will re-arrange and potentially hide some checkboxes,
+            // but currentlyFilteredPreviewItems retains ALL initially selected items.
+            filterAndSortPreviewCheckboxes(); // This will re-sort if modal's sort filter is changed
+            previewSelectionModal.classList.remove('hidden');
+        }
+
+        function closePreviewSelectionModal() {
+            previewSelectionModal.classList.add('hidden');
+            // Clear modal's filters on close
+            previewSearchInput.value = '';
+            previewItemTypeFilter.value = '';
+            previewDataFilterSelect.value = 'all';
+            previewSortFilter.value = 'untouched';
+            // currentlyFilteredPreviewItems retains its state from checkbox interactions
+        }
+
+        function filterAndSortPreviewCheckboxes() {
+            const searchText = previewSearchInput.value.toLowerCase();
+            const selectedItemType = previewItemTypeFilter.value.toLowerCase();
+            const selectedDataFilter = previewDataFilterSelect.value;
+            const selectedSortOrder = previewSortFilter.value;
+
+            // Get all checkbox divs, not just the initially filtered ones,
+            // because they are already created in openPreviewSelectionModal.
+            const allCheckboxDivs = Array.from(itemCodeCheckboxesContainer.querySelectorAll('div'));
+
+            // Map divs to their corresponding item data for filtering and sorting
+            let itemsWithDivs = allCheckboxDivs.map(div => {
+                const itemCode = div.querySelector('input').value;
+                const item = inventoryData.find(d => d.code === itemCode); // Find original item data
+                return { item, div };
+            }).filter(entry => entry.item); // Ensure item data exists
+
+            // Apply filters for the modal's display
+            let filteredItemsWithDivs = itemsWithDivs.filter(({ item }) => {
+                const codeLower = item.code.toLowerCase();
+                const matchesSearch = codeLower.includes(searchText);
+
+                let matchesItemType = true;
+                if (selectedItemType) {
+                    if (selectedItemType === "bag") {
+                        matchesItemType = codeLower.startsWith("bag") || codeLower.startsWith("bundles");
+                    } else {
+                        matchesItemType = codeLower.startsWith(selectedItemType);
+                    }
+                }
+
+                let matchesDataFilter = true;
+                if (selectedDataFilter === 'with_data') {
+                    matchesDataFilter = hasData(item);
+                } else if (selectedDataFilter === 'no_data') {
+                    matchesDataFilter = !hasData(item);
+                }
+
+                return matchesSearch && matchesItemType && matchesDataFilter;
+            });
+
+            // Apply sorting for the modal's display
+            if (selectedSortOrder === "az") {
+                filteredItemsWithDivs.sort((a, b) => a.item.code.localeCompare(b.item.code));
+            } else if (selectedSortOrder === "za") {
+                filteredItemsWithDivs.sort((a, b) => b.item.code.locale('en', {sensitivity: 'base'}).localeCompare(a.item.code.locale('en', {sensitivity: 'base'})));
+            }
+
+            // Clear container and append filtered/sorted divs
+            itemCodeCheckboxesContainer.innerHTML = '';
+            filteredItemsWithDivs.forEach(({ div }) => {
+                itemCodeCheckboxesContainer.appendChild(div);
+            });
+
+            // Re-check checkboxes based on currentlyFilteredPreviewItems after filtering/sorting
+            // This ensures that even if items are hidden by the modal's filter, their checked state is preserved.
+            const checkboxes = itemCodeCheckboxesContainer.querySelectorAll('input.item-code-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = currentlyFilteredPreviewItems.includes(checkbox.value);
+            });
+        }
+
+
+        // Helper to set checkbox state (and update currentlyFilteredPreviewItems)
+        function setCheckboxState(checkbox, checked) {
+            checkbox.checked = checked;
+            const code = checkbox.value;
+            if (checked && !currentlyFilteredPreviewItems.includes(code)) {
+                currentlyFilteredPreviewItems.push(code);
+            } else if (!checked && currentlyFilteredPreviewItems.includes(code)) {
+                currentlyFilteredPreviewItems = currentlyFilteredPreviewItems.filter(c => c !== code);
+            }
+        }
+
+        // Ensure that individual checkbox clicks also update currentlyFilteredPreviewItems
+        itemCodeCheckboxesContainer.addEventListener('change', (event) => {
+            if (event.target.classList.contains('item-code-checkbox')) {
+                setCheckboxState(event.target, event.target.checked);
             }
         });
 
-        // Delete item
-        function deleteItem(index) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                inventoryData.splice(index, 1);
-                renderTable();
-            }
-        }
 
-        // Clear all data
-        clearAllBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear ALL inventory data? This cannot be undone.')) {
-                inventoryData = [];
-                renderTable();
+        // Input event listeners with minor normalizations
+        itemCountInput.addEventListener("input", () => {
+            let rawCountValue = itemCountInput.value;
+            rawCountValue = rawCountValue.replace(/x/g, '×').replace(/X/g, '×').replace(/\*/g, '×').replace(/l/g, '|').replace(/L/g, '|').replace(/\+/g, '|');
+            itemCountInput.value = rawCountValue;
+
+            const parts = rawCountValue.split("|").map(p => p.trim());
+            if (rawCountValue.trim() === "") parts.splice(0, parts.length);
+            const currentRemarks = Array.from(remarksContainer.querySelectorAll('input')).map(i => i.value.trim());
+            renderRemarksInputs(parts, currentRemarks);
+        });
+        itemCountInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
+                event.preventDefault();
+                itemForm.requestSubmit();
+            }
+        });
+        itemForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let rawCountValue = itemCountInput.value;
+            rawCountValue = rawCountValue.replace(/x/g, '×').replace(/X/g, '×').replace(/\*/g, '×').replace(/l/g, '|').replace(/L/g, '|').replace(/\+/g, '|');
+            itemCountInput.value = rawCountValue;
+
+            const code = itemCodeInput.value.trim();
+            if (!code) {
+                itemCodeInput.setCustomValidity('Item code is required.');
+                itemCodeInput.reportValidity();
+                return;
+            } else {
+                itemCodeInput.setCustomValidity('');
+            }
+
+            let countParts = rawCountValue.split("|").map(p => p.trim());
+            if (rawCountValue.trim() === "") countParts = [];
+            itemCountInput.setCustomValidity('');
+
+            const remarkInputs = remarksContainer.querySelectorAll("input");
+            let remarks = [];
+            if (remarkInputs.length > 0) {
+                remarkInputs.forEach(input => remarks.push(input.value.trim()));
+            } else {
+                remarks = new Array(countParts.length).fill("");
+            }
+
+            if (remarks.length !== countParts.length) {
+                const diff = countParts.length - remarks.length;
+                if (diff > 0) {
+                    remarks = remarks.concat(new Array(diff).fill(""));
+                } else if (diff < 0) {
+                    remarks = remarks.slice(0, countParts.length);
+                }
+            }
+
+            if (editIndex === null) {
+                if (inventoryData.find(i => i.code === code)) {
+                    itemCodeInput.setCustomValidity("Item code already exists.");
+                    itemCodeInput.reportValidity();
+                    return;
+                }
+                inventoryData.push({ code, count: countParts, remarks });
+            } else {
+                const existingItem = inventoryData.find((i, idx) => i.code === code && idx !== editIndex);
+                if (existingItem) {
+                    itemCodeInput.setCustomValidity("Item code already exists.");
+                    itemCodeInput.reportValidity();
+                    return;
+                }
+                inventoryData[editIndex] = { code, count: countParts, remarks };
+            }
+            saveToLocal();
+            renderTable();
+            closeModal();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+            if (editIndex !== null) {
+                if (confirm(`Delete item "${inventoryData[editIndex].code}"?`)) {
+                    const deletedCode = inventoryData[editIndex].code;
+                    inventoryData.splice(editIndex, 1);
+                    // Also remove from currentlyFilteredPreviewItems if it was there
+                    currentlyFilteredPreviewItems = currentlyFilteredPreviewItems.filter(code => code !== deletedCode);
+                    saveToLocal();
+                    renderTable();
+                    closeModal();
+                }
             }
         });
 
-        // Local Storage functions
-        function saveToLocal() {
-            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
-            localStorage.setItem('dateShift', dateShiftInput.value);
-            localStorage.setItem('timeCounted', timeCountedInput.value);
-            localStorage.setItem('shiftType', shiftSelect.value);
-        }
+        cancelBtn.addEventListener("click", closeModal);
+        closeModalBtn.addEventListener("click", closeModal);
 
-        function loadFromLocal() {
-            const savedData = localStorage.getItem('inventoryData');
-            if (savedData) {
-                inventoryData = JSON.parse(savedData);
-            }
-            const savedDate = localStorage.getItem('dateShift');
-            if (savedDate) {
-                dateShiftInput.value = savedDate;
-            }
-            const savedTime = localStorage.getItem('timeCounted');
-            if (savedTime) {
-                timeCountedInput.value = savedTime;
-            }
-            const savedShift = localStorage.getItem('shiftType');
-            if (savedShift) {
-                shiftSelect.value = savedShift;
-            }
-        }
+        addNewBtn.addEventListener("click", () => {
+            openModal(null);
+        });
 
-        // --- START EXPORT TO EXCEL (UPDATED FOR NODE.JS SERVER) ---
-        exportBtn.addEventListener('click', async () => {
+        // Event listeners for filters and new sort option
+        searchInput.addEventListener("input", () => {
+            renderTable();
+        });
+        tagFilter.addEventListener("change", () => {
+            renderTable();
+        });
+        dataFilterSelect.addEventListener("change", () => {
+            renderTable();
+        });
+        itemTypeFilter.addEventListener("change", () => {
+            renderTable();
+        });
+        sortFilter.addEventListener("change", renderTable);
+
+        previewBtn.addEventListener('click', openPreviewSelectionModal);
+        cancelPreviewBtn.addEventListener('click', closePreviewSelectionModal);
+        closePreviewSelectionModalBtn.addEventListener('click', closePreviewSelectionModal);
+
+        // Event listeners for preview modal filters
+        previewSearchInput.addEventListener('input', filterAndSortPreviewCheckboxes);
+        previewItemTypeFilter.addEventListener('change', filterAndSortPreviewCheckboxes);
+        previewDataFilterSelect.addEventListener('change', filterAndSortPreviewCheckboxes);
+        previewSortFilter.addEventListener('change', filterAndSortPreviewCheckboxes);
+
+        generatePreviewBtn.addEventListener('click', () => {
             const dateShift = dateShiftInput.value.trim();
             const timeCounted = timeCountedInput.value.trim();
-            const shiftType = shiftSelect.value;
+            const shiftType = shiftSelect.value.trim();
 
-            try {
-                // Magpadala ng data sa iyong Node.js server endpoint
-                const response = await fetch('/export-excel', { // Ito ang endpoint sa iyong server.js
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        inventoryData: inventoryData, // Ang iyong array ng item objects
-                        dateShift: dateShift,
-                        timeCounted: timeCounted,
-                        shiftType: shiftType
-                    }),
-                });
+            const selectedCodesInModal = Array.from(itemCodeCheckboxesContainer.querySelectorAll('input.item-code-checkbox:checked'))
+                .map(checkbox => checkbox.value);
 
-                if (!response.ok) {
-                    // Handle specific HTTP errors from the server
-                    const errorText = await response.text(); // Basahin ang error message mula sa server
-                    throw new Error(`Server error! status: ${response.status}, message: ${errorText}`);
-                }
+            let previewData = inventoryData.filter(item => selectedCodesInModal.includes(item.code));
 
-                // Tanggapin ang Excel file na ipinadala ng server bilang Blob
-                const blob = await response.blob();
-                // Basahin ang filename mula sa Content-Disposition header ng server response
-                const contentDisposition = response.headers.get('Content-Disposition');
-                let filename = 'packaging_materials_count.xlsx'; // Default filename
-                if (contentDisposition && contentDisposition.includes('filename=')) {
-                    // Extract filename from header, removing surrounding quotes if present
-                    filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
-                }
-
-                // Lumikha ng URL para sa Blob at i-trigger ang download
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename; // Gamitin ang filename mula sa server
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                window.URL.revokeObjectURL(url); // I-release ang object URL
-                alert("Excel file generated and downloaded!");
-
-            } catch (error) {
-                console.error('Error exporting Excel:', error);
-                alert('Failed to export Excel file. Please try again. Error: ' + error.message);
+            // FIX: Apply sorting to previewData based on the selected preview sort filter
+            const currentPreviewSort = previewSortFilter.value;
+            if (currentPreviewSort === "az") {
+                previewData.sort((a, b) => a.code.localeCompare(b.code));
+            } else if (currentPreviewSort === "za") {
+                previewData.sort((a, b) => b.code.locale('en', {sensitivity: 'base'}).localeCompare(a.code.locale('en', {sensitivity: 'base'})));
             }
+            // END FIX
+
+            closePreviewSelectionModal();
+            exportToHTMLFileForPreview(previewData, dateShift, timeCounted, shiftType);
+
+            // Reset main table filters after generating preview, if desired
+            searchInput.value = '';
+            tagFilter.value = 'all';
+            dataFilterSelect.value = 'all_data_items';
+            itemTypeFilter.value = '';
+            sortFilter.value = 'untouched';
+            renderTable(); // Re-render main table to reflect reset filters
         });
-        // --- END EXPORT TO EXCEL (UPDATED FOR NODE.JS SERVER) ---
 
+        // Fixed export to preview.html function with string concatenation
+        function exportToHTMLFileForPreview(data, dateShift, timeCounted, shiftType) {
+            let tableRowsHtml = '';
+            if (data.length === 0) {
+                tableRowsHtml = '<tr><td colspan="2" class="text-center py-4 italic text-gray-600">No items selected for preview.</td></tr>';
+            } else {
+                for (let i = 0; i < data.length; i++) {
+                    const item = data[i];
+                    let breakdownHTML = '';
+                    if (Array.isArray(item.count) && item.count.length > 0) {
+                        const parts = [];
+                        for (let j = 0; j < item.count.length; j++) {
+                            const countVal = item.count[j];
+                            const remarkVal = (item.remarks && item.remarks[j]) ? item.remarks[j] : "";
+                            const bgColorClass = getBgColorClassForRemark(remarkVal);
+                            parts.push('<span class="' + bgColorClass + ' font-semibold px-1 rounded" title="' + remarkVal + '">' + countVal + '</span>');
+                        }
+                        breakdownHTML = parts.join(' <span class="mx-1">|</span> ');
+                    } else {
+                        breakdownHTML = '<span class="italic text-gray-500">No breakdown</span>';
+                    }
+                    const total = calculateTotal(item.count);
+                    tableRowsHtml += '<tr class="h-full">' +
+                        '<td class="item-code-cell italic font-semibold" style="text-align: left; vertical-align: middle;">' + item.code + '</td>' +
+                        '<td class="count-breakdown-cell" style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0;">' +
+                        '<div style="flex-grow: 1; padding: 8px 10px; white-space: normal;">' + breakdownHTML + '</div>' +
+                        '<div class="font-bold border border-gray-400 px-2 py-0.5" style="flex-shrink: 0; margin-left: 1rem; padding: 4px 8px;">Total: ' + total + '</div>' +
+                        '</td>' +
+                        '</tr>';
+                }
+            }
 
-        // --- IMPORT FILE HANDLING (still client-side using SheetJS) ---
+            const headerHtml = '<div style="padding: 1rem 1rem 0.5rem; border-bottom: 1px solid gray;">' +
+                '<h1 style="font-weight: 800; font-size: 1.125rem; text-align: center; text-transform: uppercase; line-height: 1.25;">' +
+                'PACKAGING MATERIALS DAILY COUNT SHEET - <span style="font-style: italic; font-weight: 600;">COHIN (BLDG. 3&amp;6)</span>' +
+                '</h1>' +
+                '<div style="display: flex; flex-direction: column; justify-content: space-between; margin-top: 0.5rem; font-size: 0.875rem; font-weight: 600; gap: 0.5rem;">' +
+                '<div style="display: flex; align-items: center; gap: 0.5rem;">' +
+                '<label>Date / Shift :</label>' +
+                '<span class="handwritten" style="text-decoration: underline; text-underline-offset: 2px;">' + dateShift + '</span>' +
+                '</div>' +
+                '<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">' +
+                '<label>Shift:</label>' +
+                '<span class="handwritten" style="text-decoration: underline; text-underline-offset: 2px;">' + (shiftType || 'N/A') + '</span>' +
+                '</div>' +
+                '<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">' +
+                '<label>TIME COUNTED:</label>' +
+                '<span class="handwritten" style="text-decoration: underline; text-underline-offset: 2px;">' + timeCounted + '</span>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+
+            const fullHtmlContent = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Packaging Materials Inventory Preview</title>
+                    <style>
+                        body { font-family: 'Roboto Slab', serif; margin: 0; padding: 1rem; background-color: white; color: black; }
+                        .handwritten { font-family: 'Courier New', monospace; font-style: italic; font-weight: 600; letter-spacing: 0.03em; }
+                        .inventory-table-container { overflow-x: auto; margin-top: 1rem; }
+                        .inventory-table { width: 100%; border-collapse: collapse; border: 1px solid black; text-align: left; table-layout: fixed; }
+                        .inventory-table thead th { border: 1px solid black; padding: 8px 10px; text-align: center; background-color: #e2e8f0; }
+                        .inventory-table tbody td { border: 1px solid black; padding: 8px 10px; vertical-align: middle; min-height: 40px; }
+                        .inventory-table tbody tr { height: 100%; }
+                        .item-code-cell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                        .count-breakdown-cell { display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0; }
+                        .count-breakdown-cell > div:first-child { flex-grow: 1; padding: 8px 10px; white-space: normal; }
+                        .count-breakdown-cell > div:last-child { flex-shrink: 0; margin-left: 1rem; padding: 4px 8px; border: 1px solid black; }
+                        .bg-green-300 { background-color: #a7f3d0; }
+                        .bg-yellow-300 { background-color: #fde68a; }
+                        .bg-pink-300 { background-color: #fbcfe8; }
+                        .bg-gray-200 { background-color: #e5e7eb; }
+                        .text-black { color: #000; }
+                        .text-gray-500 { color: #6b7280; }
+                        .font-semibold { font-weight: 600; }
+                        .font-bold { font-weight: 700; }
+                        .italic { font-style: italic; }
+                        .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+                        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+                        .rounded { border-radius: 0.25rem; }
+                        .border { border-width: 1px; border-style: solid; }
+                        .border-gray-400 { border-color: #9ca3af; }
+                        .mx-1 { margin-left: 0.25rem; margin-right: 0.25rem; }
+                        .text-center { text-align: center; }
+                        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+                        .uppercase { text-transform: uppercase; }
+                        .leading-tight { line-height: 1.25; }
+                    </style>
+                </head>
+                <body>
+                    <div style="border: 1px solid black; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                        ${headerHtml}
+                        <section class="inventory-table-container">
+                            <table class="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>ITEM CODE</th>
+                                        <th>ACTUAL COUNT BREAKDOWN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRowsHtml}
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([fullHtmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            URL.revokeObjectURL(url); // Clean up the URL object
+        }
+
+        // Export to Excel
+        exportBtn.addEventListener('click', () => {
+            const dateShift = dateShiftInput.value.trim(); // e.g., "06/09/2025"
+            const timeCounted = timeCountedInput.value.trim(); // e.g., "12:36"
+            const shiftType = shiftSelect.value; // e.g., "Night Shift" or "Day Shift"
+
+            // Parse dateShift
+            const dateParts = dateShift.split('/'); // ["06", "09", "2025"]
+            const monthIndex = parseInt(dateParts[0], 10) - 1; // 0-indexed month
+            const day = dateParts[1];
+            const year = dateParts[2];
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const monthAbbr = months[monthIndex];
+
+            // Parse timeCounted
+            const timeParts = timeCounted.split(':'); // ["12", "36"]
+            let hours = parseInt(timeParts[0], 10);
+            const minutes = timeParts[1];
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' (midnight) should be '12'
+            const formattedHours = String(hours).padStart(2, '0'); // Ensure two digits
+
+            let shiftSuffix = "";
+            if (shiftType === "Day Shift") {
+                shiftSuffix = "DS";
+            } else if (shiftType === "Night Shift") {
+                shiftSuffix = "NS";
+            }
+
+            const filename = `PMC_${monthAbbr}_${day}_${year}_${formattedHours}${minutes}_${ampm}_${shiftSuffix}.xlsx`;
+
+            const dataToExport = inventoryData.map(item => {
+                const total = calculateTotal(item.count); // This is the numerical total (e.g., 269100)
+                const excelFormulaWithoutEquals = generateExcelFormula(item.count); // This will now be "11*24000+5100"
+
+                return {
+                    "ITEM CODE": item.code,
+                    "ACTUAL COUNT BREAKDOWN": item.count.join(' | '),
+                    "TOTAL": { t: 'f', f: excelFormulaWithoutEquals, v: total }, // <--- MODIFIED: Explicitly define as formula cell
+                    "REMARKS": item.remarks.join(' | ')
+                };
+            });
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+            XLSX.writeFile(wb, filename);
+        });
+
+        // Export to JSON
+        exportJsonBtn.addEventListener('click', () => {
+            const dataStr = JSON.stringify(inventoryData, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "inventory_data.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Import Excel Data
         importFile.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
                     const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-                    // Assuming specific columns for import: ITEM CODE, ACTUAL COUNT BREAKDOWN, REMARKS
-                    // Adjust column indices based on your Excel file structure
-                    const headerRow = json[0]; // Assuming first row is header
-                    const itemCodeCol = headerRow.indexOf('ITEM CODE');
-                    const countBreakdownCol = headerRow.indexOf('ACTUAL COUNT BREAKDOWN');
-                    const remarksCol = headerRow.indexOf('REMARKS');
+                    // Assuming first row is headers: "ITEM CODE", "ACTUAL COUNT BREAKDOWN", "REMARKS" (optional)
+                    if (json.length > 1) {
+                        const newInventory = [];
+                        for (let i = 1; i < json.length; i++) {
+                            const row = json[i];
+                            const code = row[0] ? String(row[0]).trim() : '';
+                            const countString = row[1] ? String(row[1]).trim() : '';
+                            const remarksString = row[3] ? String(row[3]).trim() : ''; // Assuming remarks are in column 4 (index 3)
 
-                    if (itemCodeCol === -1 || countBreakdownCol === -1) {
-                        alert("Required columns (ITEM CODE, ACTUAL COUNT BREAKDOWN) not found in the Excel file.");
-                        return;
+                            const countParts = countString.split('|').map(p => p.trim());
+                            const remarksParts = remarksString.split('|').map(p => p.trim());
+
+                            if (code) {
+                                newInventory.push({ code: code, count: countParts, remarks: remarksParts });
+                            }
+                        }
+                        inventoryData = newInventory;
+                        saveToLocal();
+                        renderTable();
+                        alert("Data imported successfully!");
+                    } else {
+                        alert("No valid data found in the imported file.");
                     }
 
-                    const importedItems = [];
-                    for (let i = 1; i < json.length; i++) { // Start from second row (after header)
-                        const rowData = json[i];
-                        const code = rowData[itemCodeCol] ? String(rowData[itemCodeCol]).trim() : '';
-                        let count = [];
-                        if (rowData[countBreakdownCol]) {
-                            // Split by common delimiters like comma, newline, or pipe
-                            count = String(rowData[countBreakdownCol]).split(/[,|\n]+/).map(s => s.trim()).filter(s => s !== '');
-                        }
-                        let remarks = [];
-                        if (remarksCol !== -1 && rowData[remarksCol]) {
-                            remarks = String(rowData[remarksCol]).split(/[,|\n]+/).map(s => s.trim()).filter(s => s !== '');
-                        }
+                } catch (error) {
+                    console.error("Error processing Excel file:", error);
+                    alert("Failed to import data. Please ensure it's a valid Excel file and matches the expected format. Error: " + error.message);
+                }
+            };
 
-                        if (code && count.length > 0) {
-                            importedItems.push({ code, count, remarks });
-                        }
-                    }
+            reader.onerror = () => {
+                alert("Failed to read the file. Please try again.");
+            };
 
-                    if (importedItems.length > 0) {
-                        inventoryData = importedItems; // Replace current data or append, depending on preference
+            reader.readAsArrayBuffer(file);
+            event.target.value = ''; // Clear the input so same file can be selected again
+        });
+
+        // Export to Countsheet Excel (simplified)
+        exportCountsheetBtn.addEventListener('click', () => {
+            const dateShift = dateShiftInput.value.trim(); // e.g., "06/09/2025"
+            const timeCounted = timeCountedInput.value.trim(); // e.g., "12:36"
+            const shiftType = shiftSelect.value; // e.g., "Night Shift" or "Day Shift"
+
+            // Parse dateShift
+            const dateParts = dateShift.split('/'); // ["06", "09", "2025"]
+            const monthIndex = parseInt(dateParts[0], 10) - 1; // 0-indexed month
+            const day = dateParts[1];
+            const year = dateParts[2];
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const monthAbbr = months[monthIndex];
+
+            // Parse timeCounted
+            let hours = parseInt(timeCounted.split(':')[0], 10);
+            const minutes = timeCounted.split(':')[1];
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' (midnight) should be '12'
+            const formattedHours = String(hours).padStart(2, '0');
+
+            let shiftSuffix = "";
+            if (shiftType === "Day Shift") {
+                shiftSuffix = "DS";
+            } else if (shiftType === "Night Shift") {
+                shiftSuffix = "NS";
+            }
+
+            const filename = `NCC_${monthAbbr}_${day}_${year}_${formattedHours}${minutes}_${ampm}_${shiftSuffix}.xlsx`;
+
+			const dataToExport = inventoryData.map(item => {
+                const total = calculateTotal(item.count); // This is the numerical total (e.g., 269100)
+                const excelFormulaWithoutEquals = generateExcelFormula(item.count); // This will now be "11*24000+5100"
+
+                return {
+                    "ITEM CODE": item.code,
+                    "ACTUAL COUNT BREAKDOWN": item.count.join(' | '),
+                    "TOTAL": { t: 'f', f: excelFormulaWithoutEquals, v: total }, // <--- MODIFIED: Explicitly define as formula cell
+                    "REMARKS": item.remarks.join(' | ')
+                };
+            });
+
+            // Add header rows
+            const headerRows = [
+                ["PACKAGING MATERIALS DAILY COUNT SHEET - COHIN (BLDG. 3&6)"],
+                [], // Empty row
+                ["Date / Shift :", dateShift, "", "Shift:", shiftType],
+                ["TIME COUNTED:", timeCounted],
+                [], // Empty row
+                ["ITEM CODE", "ACTUAL COUNT BREAKDOWN", "TOTAL", "REMARKS"]
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(headerRows);
+            XLSX.utils.sheet_add_json(ws, dataToExport, { origin: "A7", skipHeader: true }); // Start data at A7
+
+            // Merge cells for the title
+            if (!ws['!merges']) ws['!merges'] = [];
+            ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }); // Merge A1:D1 for title
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Countsheet");
+            XLSX.writeFile(wb, filename);
+        });
+
+        // Import Countsheet Excel
+        importCountsheetFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+
+                    // Attempt to parse headers dynamically or assume a fixed starting row for data
+                    // For simplicity, let's assume data starts around row 7 as in export
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                        header: ["ITEM CODE", "ACTUAL COUNT BREAKDOWN", "TOTAL", "REMARKS"],
+                        range: "A6" // Assuming data starts at A6 (row 6) with headers.
+                                    // If A6 is the header row, actual data begins on A7.
+                                    // XLSX.utils.sheet_to_json handles this range correctly.
+                    });
+
+                    // Filter out rows that might be part of the header but parsed as data
+                    const validItems = jsonData.filter(row => row["ITEM CODE"] && typeof row["ITEM CODE"] === 'string' && row["ITEM CODE"].trim() !== '');
+
+                    if (validItems.length > 0) {
+                        const newInventory = validItems.map(row => {
+                            const countString = row["ACTUAL COUNT BREAKDOWN"] ? String(row["ACTUAL COUNT BREAKDOWN"]).trim() : '';
+                            const remarksString = row["REMARKS"] ? String(row["REMARKS"]).trim() : '';
+                            return {
+                                code: String(row["ITEM CODE"]).trim(),
+                                count: countString.split('|').map(p => p.trim()),
+                                remarks: remarksString.split('|').map(p => p.trim())
+                            };
+                        });
+                        inventoryData = newInventory;
+                        saveToLocal();
                         renderTable();
                         alert("Countsheet imported successfully!");
                     } else {
@@ -490,7 +1234,7 @@
             };
 
             reader.readAsArrayBuffer(file);
-            event.target.value = ''; // Clear the input field
+            event.target.value = '';
         });
         // --- END IMPORT FILE HANDLING ---
 
@@ -510,11 +1254,9 @@
             timeCountedInput.value = `${hours}:${minutes}`;
         });
 
-        // Set initial date and time on load
         setTimeBtn.click();
         setDateBtn.click();
 
-        // Load data and render table on page load
         loadFromLocal();
         renderTable();
     </script>
