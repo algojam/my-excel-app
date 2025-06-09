@@ -1,0 +1,12 @@
+{
+  "name": "my-excel-app",
+  "version": "1.0.0",
+  "description": "Packaging Materials Inventory with Serverless Excel Export",
+  "main": "api/generate-excel.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}

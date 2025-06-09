@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Packaging Materials Inventory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <style>
+        body { font-family: 'Roboto Slab', serif; background-color: white; }
+        .handwritten { font-family: 'Courier New', monospace; font-style: italic; font-weight: 600; letter-spacing: 0.03em; }
+        .italic { font-style: italic; }
+        input, button, textarea, select { font-family: 'Roboto Slab', serif; }
+
+        .inventory-table-container {
+            overflow-x: auto;
+        }
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .inventory-table th, .inventory-table td {
+            border: 1px solid #e2e8f0; /* Tailwind gray-200 */
+            padding: 8px;
+            text-align: left;
+        }
+        .inventory-table th {
+            background-color: #f8fafc; /* Tailwind gray-50 */
+            font-weight: bold;
+        }
+        .inventory-table tr:nth-child(even) {
+            background-color: #f1f5f9; /* Tailwind gray-100 */
+        }
+
+        /* Styles for remarks backgrounds - these are for HTML table only */
+        .bg-yellow-300-light { background-color: #FDE68A; } /* Hold */
+        .bg-pink-300-light { background-color: #FBCFE8; }  /* Approved */
+        .bg-green-300-light { background-color: #A7F3D0; } /* First Out / Old */
+    </style>
+</head>
+<body class="bg-gray-100 font-sans p-4 flex flex-col items-center min-h-screen">
+
+    <div class="container bg-white p-6 rounded-lg shadow-md max-w-4xl w-full">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">PACKAGING MATERIALS INVENTORY</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <label for="dateShift" class="block text-sm font-medium text-gray-700">Date / Shift</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="text" id="dateShift" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 border" placeholder="MM/DD/YYYY" />
+                    <button id="setDateBtn" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm hover:bg-gray-100">
+                        Set Today
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label for="timeCounted" class="block text-sm font-medium text-gray-700">TIME COUNTED</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="text" id="timeCounted" class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2 border" placeholder="HH:MM" />
+                    <button id="setTimeBtn" class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm hover:bg-gray-100">
+                        Set Now
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label for="shiftSelect" class="block text-sm font-medium text-gray-700">Shift Type</label>
+                <select id="shiftSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
+                    <option value="Day Shift">Day Shift</option>
+                    <option value="Night Shift">Night Shift</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-6 border-t pt-4">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Add/Edit Item</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="itemCode" class="block text-sm font-medium text-gray-700">Item Code</label>
+                    <input type="text" id="itemCode" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 10001" />
+                </div>
+                <div>
+                    <label for="itemCount" class="block text-sm font-medium text-gray-700">Actual Count Breakdown (separated by comma)</label>
+                    <input type="text" id="itemCount" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 100,200,300" />
+                </div>
+                <div class="md:col-span-2">
+                    <label for="itemRemarks" class="block text-sm font-medium text-gray-700">Remarks (separated by comma)</label>
+                    <input type="text" id="itemRemarks" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Good, Repacked" />
+                </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+                <button id="addItemBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <i class="fas fa-plus mr-2"></i>Add Item
+                </button>
+                <button id="updateItemBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 hidden">
+                    <i class="fas fa-edit mr-2"></i>Update Item
+                </button>
+                <button id="cancelUpdateBtn" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 hidden">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+            </div>
+        </div>
+
+        <div class="inventory-table-container mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Inventory</h2>
+            <table id="inventoryTable" class="inventory-table">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Item Code</th>
+                        <th class="px-4 py-2">Actual Count Breakdown</th>
+                        <th class="px-4 py-2">Total</th>
+                        <th class="px-4 py-2">Remarks</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8 flex flex-wrap gap-4 justify-center">
+            <button id="exportBtn" class="bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 text-lg">
+                <i class="fas fa-file-excel mr-2"></i>Export to Excel (Styled)
+            </button>
+            <label for="importCountsheet" class="cursor-pointer bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 text-lg inline-flex items-center justify-center">
+                <i class="fas fa-file-import mr-2"></i>Import Countsheet Excel
+                <input type="file" id="importCountsheet" accept=".xlsx, .xls" class="hidden" />
+            </label>
+            <button id="clearDataBtn" class="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-lg">
+                <i class="fas fa-trash-alt mr-2"></i>Clear All Data
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const dateShiftInput = document.getElementById('dateShift');
+        const timeCountedInput = document.getElementById('timeCounted');
+        const shiftSelect = document.getElementById('shiftSelect');
+        const itemCodeInput = document.getElementById('itemCode');
+        const itemCountInput = document.getElementById('itemCount');
+        const itemRemarksInput = document.getElementById('itemRemarks');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const updateItemBtn = document.getElementById('updateItemBtn');
+        const cancelUpdateBtn = document.getElementById('cancelUpdateBtn');
+        const inventoryTableBody = document.querySelector('#inventoryTable tbody');
+        const exportBtn = document.getElementById('exportBtn');
+        const importCountsheetInput = document.getElementById('importCountsheet');
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        const setDateBtn = document.getElementById('setDateBtn');
+        const setTimeBtn = document.getElementById('setTimeBtn');
+
+        let inventoryData = [];
+        let editingIndex = -1;
+
+        // --- Helper Functions ---
+        const calculateTotal = (countArr) => {
+            if (!Array.isArray(countArr)) return 0;
+            let total = 0;
+            countArr.forEach(part => {
+                const trimmedVal = part.trim();
+                if (trimmedVal === "") return; // Skip empty parts
+                try {
+                    // Replace '×' with '*' for evaluation
+                    const evaluated = eval(trimmedVal.replace(/×/g, '*'));
+                    if (!isNaN(evaluated)) {
+                        total += evaluated;
+                    }
+                } catch (e) {
+                    // Log error for invalid expressions, but continue
+                    console.error("Error evaluating count part:", trimmedVal, e);
+                }
+            });
+            return total;
+        };
+
+        const getBgColorClassForRemark = (remark) => {
+            const r = remark.toLowerCase();
+            if (r.includes("hold")) return "bg-yellow-300-light";
+            if (r.includes("approved")) return "bg-pink-300-light";
+            if (r.includes("first out") || r.includes("old")) return "bg-green-300-light";
+            return "";
+        };
+
+        const generateExcelFormula = (countArr) => {
+            if (!Array.isArray(countArr) || countArr.length === 0) {
+                return "0";
+            }
+            const parsedParts = countArr.map(part => {
+                const trimmedVal = part.trim();
+                if (trimmedVal === "") return "0";
+                let formattedPart = trimmedVal.replace(/×/g, '*');
+                // Wrap complex expressions in parentheses to ensure correct order of operations in Excel
+                if (formattedPart.includes('+') || formattedPart.includes('-')) {
+                    return `(${formattedPart})`;
+                }
+                return formattedPart;
+            });
+            return `=${parsedParts.join('+')}`;
+        };
+
+        const saveToLocal = () => {
+            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+            localStorage.setItem('dateShift', dateShiftInput.value);
+            localStorage.setItem('timeCounted', timeCountedInput.value);
+            localStorage.setItem('shiftType', shiftSelect.value);
+        };
+
+        const loadFromLocal = () => {
+            const storedData = localStorage.getItem('inventoryData');
+            if (storedData) {
+                inventoryData = JSON.parse(storedData);
+            }
+            dateShiftInput.value = localStorage.getItem('dateShift') || '';
+            timeCountedInput.value = localStorage.getItem('timeCounted') || '';
+            shiftSelect.value = localStorage.getItem('shiftType') || 'Day Shift';
+        };
+
+        const renderTable = () => {
+            inventoryTableBody.innerHTML = '';
+            if (inventoryData.length === 0) {
+                inventoryTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">No items added yet.</td></tr>';
+                return;
+            }
+
+            inventoryData.forEach((item, index) => {
+                const row = inventoryTableBody.insertRow();
+                row.classList.add('hover:bg-gray-50');
+
+                row.insertCell().textContent = item.code;
+                row.insertCell().textContent = item.count.join(' | ');
+                row.insertCell().textContent = calculateTotal(item.count);
+
+                const remarksCell = row.insertCell();
+                remarksCell.textContent = item.remarks.join(' | ');
+                // Apply background class based on the first relevant remark
+                const remarksArray = Array.isArray(item.remarks) ? item.remarks : [];
+                for (const r of remarksArray) {
+                    const bgColorClass = getBgColorClassForRemark(r);
+                    if (bgColorClass) {
+                        remarksCell.classList.add(bgColorClass);
+                        break; // Apply first matching color and exit
+                    }
+                }
+
+
+                const actionsCell = row.insertCell();
+                const editBtn = document.createElement('button');
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.classList.add('bg-yellow-500', 'text-white', 'px-3', 'py-1', 'rounded-md', 'hover:bg-yellow-600', 'mr-2');
+                editBtn.onclick = () => editItem(index);
+                actionsCell.appendChild(editBtn);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteBtn.classList.add('bg-red-500', 'text-white', 'px-3', 'py-1', 'rounded-md', 'hover:bg-red-600');
+                deleteBtn.onclick = () => deleteItem(index);
+                actionsCell.appendChild(deleteBtn);
+            });
+        };
+
+        const addItem = () => {
+            const code = itemCodeInput.value.trim();
+            const count = itemCountInput.value.split(',').map(s => s.trim()).filter(s => s !== '');
+            const remarks = itemRemarksInput.value.split(',').map(s => s.trim()).filter(s => s !== '');
+
+            if (!code || count.length === 0) {
+                alert("Please enter Item Code and at least one Actual Count.");
+                return;
+            }
+
+            // Check for duplicate item code
+            const existingItem = inventoryData.find(item => item.code.toLowerCase() === code.toLowerCase());
+            if (existingItem) {
+                alert("Item Code already exists. Please use 'Update Item' to modify it, or use a different code.");
+                return;
+            }
+
+            inventoryData.push({ code, count, remarks });
+            clearForm();
+            saveToLocal();
+            renderTable();
+        };
+
+        const editItem = (index) => {
+            const item = inventoryData[index];
+            itemCodeInput.value = item.code;
+            itemCountInput.value = item.count.join(',');
+            itemRemarksInput.value = item.remarks.join(',');
+            editingIndex = index;
+            addItemBtn.classList.add('hidden');
+            updateItemBtn.classList.remove('hidden');
+            cancelUpdateBtn.classList.remove('hidden');
+        };
+
+        const updateItem = () => {
+            if (editingIndex === -1) return;
+
+            const code = itemCodeInput.value.trim();
+            const count = itemCountInput.value.split(',').map(s => s.trim()).filter(s => s !== '');
+            const remarks = itemRemarksInput.value.split(',').map(s => s.trim()).filter(s => s !== '');
+
+            if (!code || count.length === 0) {
+                alert("Please enter Item Code and at least one Actual Count.");
+                return;
+            }
+
+            // Check for duplicate item code, excluding the item being edited
+            const existingItem = inventoryData.find((item, idx) => item.code.toLowerCase() === code.toLowerCase() && idx !== editingIndex);
+            if (existingItem) {
+                alert("Item Code already exists for another item. Please use a different code.");
+                return;
+            }
+
+            inventoryData[editingIndex] = { code, count, remarks };
+            clearForm();
+            resetButtons();
+            saveToLocal();
+            renderTable();
+        };
+
+        const deleteItem = (index) => {
+            if (confirm(`Are you sure you want to delete item "${inventoryData[index].code}"?`)) {
+                inventoryData.splice(index, 1);
+                saveToLocal();
+                renderTable();
+            }
+        };
+
+        const clearForm = () => {
+            itemCodeInput.value = '';
+            itemCountInput.value = '';
+            itemRemarksInput.value = '';
+        };
+
+        const resetButtons = () => {
+            editingIndex = -1;
+            addItemBtn.classList.remove('hidden');
+            updateItemBtn.classList.add('hidden');
+            cancelUpdateBtn.classList.add('hidden');
+        };
+
+        const clearAllData = () => {
+            if (confirm("Are you sure you want to clear ALL inventory data? This cannot be undone.")) {
+                inventoryData = [];
+                saveToLocal();
+                renderTable();
+                alert("All data cleared!");
+            }
+        };
+
+        // --- Event Listeners ---
+        addItemBtn.addEventListener('click', addItem);
+        updateItemBtn.addEventListener('click', updateItem);
+        cancelUpdateBtn.addEventListener('click', () => {
+            clearForm();
+            resetButtons();
+        });
+        clearDataBtn.addEventListener('click', clearAllData);
+
+        // --- EXPORT TO EXCEL (Calling Serverless Function) ---
+        exportBtn.addEventListener('click', async () => {
+            const dateShift = dateShiftInput.value.trim();
+            const timeCounted = timeCountedInput.value.trim();
+            const shiftType = shiftSelect.value;
+
+            // Prepare data to send to the serverless function
+            const payload = {
+                inventoryData: inventoryData,
+                dateShift: dateShift,
+                timeCounted: timeCounted,
+                shiftType: shiftType
+            };
+
+            try {
+                // Tumawag sa Vercel Serverless Function
+                const response = await fetch('/api/generate-excel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} ${errorText}`);
+                }
+
+                // Parse filename from Content-Disposition header
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'Styled_Countsheet.xlsx'; // Default filename
+                if (contentDisposition && contentDisposition.includes('filename=')) {
+                    const filenameMatch = /filename="([^"]+)"/.exec(contentDisposition);
+                    if (filenameMatch && filenameMatch[1]) {
+                        filename = filenameMatch[1];
+                    }
+                }
+
+                // Download the Excel file
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                alert("Excel file generated and downloaded successfully with advanced styling!");
+
+            } catch (error) {
+                console.error("Error exporting Excel:", error);
+                alert("Failed to export Excel file. Please try again. Error: " + error.message);
+            }
+        });
+        // --- END EXPORT TO EXCEL ---
+
+        // --- IMPORT FILE HANDLING ---
+        importCountsheetInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0]; // Assume first sheet
+                    const worksheet = workbook.Sheets[sheetName];
+
+                    // Convert sheet to JSON, skipping first 6 rows (headers)
+                    // The header is expected to be at row 7 (index 6 in 0-indexed)
+                    const jsonOptions = { header: 1, range: 6 }; // header: 1 to get array of arrays, range: 6 to start from 7th row
+                    const importedRawData = XLSX.utils.sheet_to_json(worksheet, jsonOptions);
+
+                    if (importedRawData.length > 0) {
+                        const newInventoryData = [];
+                        // Assuming your Excel columns are in order: ITEM CODE, ACTUAL COUNT BREAKDOWN, TOTAL, REMARKS
+                        importedRawData.forEach(row => {
+                            // Row is an array of values based on `header: 1`
+                            const itemCode = row[0] ? String(row[0]).trim() : '';
+                            const actualCountBreakdown = row[1] ? String(row[1]).split('|').map(s => s.trim()).filter(s => s !== '') : [];
+                            const remarks = row[3] ? String(row[3]).split('|').map(s => s.trim()).filter(s => s !== '') : [];
+
+                            if (itemCode && actualCountBreakdown.length > 0) {
+                                newInventoryData.push({
+                                    code: itemCode,
+                                    count: actualCountBreakdown,
+                                    remarks: remarks
+                                });
+                            }
+                        });
+
+                        if (newInventoryData.length > 0) {
+                            inventoryData = newInventoryData;
+                            saveToLocal();
+                            renderTable();
+                            alert("Countsheet imported successfully!");
+                        } else {
+                            alert("No valid item data found in the imported countsheet.");
+                        }
+
+                    } else {
+                        alert("No valid item data found in the imported countsheet.");
+                    }
+
+                } catch (error) {
+                    console.error("Error processing Countsheet Excel file:", error);
+                    alert("Failed to import countsheet. Please ensure it's a valid Excel file and matches the expected format. Error: " + error.message);
+                }
+            };
+
+            reader.onerror = () => {
+                alert("Failed to read the countsheet file. Please try again.");
+            };
+
+            reader.readAsArrayBuffer(file);
+            event.target.value = ''; // Clear the input so same file can be selected again
+        });
+        // --- END IMPORT FILE HANDLING ---
+
+
+        setDateBtn.addEventListener('click', () => {
+            const today = new Date();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            dateShiftInput.value = `${mm}/${dd}/${yyyy}`;
+        });
+
+        setTimeBtn.addEventListener('click', () => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            timeCountedInput.value = `${hours}:${minutes}`;
+        });
+
+        setTimeBtn.click(); // Set initial time
+        setDateBtn.click(); // Set initial date
+
+        loadFromLocal();
+        renderTable();
+    </script>
+</body>
+</html>
