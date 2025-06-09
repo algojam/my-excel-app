@@ -1,3 +1,197 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* --- Custom Styles from original HTML --- */
+
+body {
+    font-family: 'Roboto Slab', serif;
+    background-color: white;
+}
+.handwritten {
+    font-family: 'Courier New', monospace;
+    font-style: italic;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+.italic {
+    font-style: italic;
+}
+input, button, textarea, select {
+    font-family: 'Roboto Slab', serif;
+}
+
+.inventory-table-container {
+    overflow-x: auto;
+}
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.inventory-table th, .inventory-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.inventory-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.edit-btn, .delete-btn {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.8em;
+    border: none;
+    transition: background-color 0.2s;
+    margin-right: 5px;
+}
+
+.edit-btn {
+    background-color: #007bff; /* Blue */
+    color: white;
+}
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Red */
+    color: white;
+}
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Modal Specific Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    font-family: 'Roboto Slab', serif;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-title {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box; /* Ensures padding doesn't add to total width */
+}
+
+.modal-actions {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s;
+    margin-left: 10px;
+}
+
+.modal-actions .save-btn {
+    background-color: #28a745; /* Green */
+    color: white;
+}
+
+.modal-actions .save-btn:hover {
+    background-color: #218838;
+}
+
+.modal-actions .cancel-btn {
+    background-color: #6c757d; /* Gray */
+    color: white;
+}
+
+.modal-actions .cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .inventory-table th, .inventory-table td {
+        padding: 6px;
+        font-size: 0.9em;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+}
+@media (max-width: 480px) {
+    .inventory-table {
+        font-size: 0.8em;
+    }
+    .edit-btn, .delete-btn {
+        padding: 4px 6px;
+        font-size: 0.7em;
+    }
+}
