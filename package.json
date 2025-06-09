@@ -1,19 +1,13 @@
 {
-  "name": "my-excel-app",
+  "name": "excel-export-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "api/generate-excel.js",
+  "description": "Server for Excel export with custom formatting",
+  "main": "server.js",
   "scripts": {
-    "build-tailwind": ".\\node_modules\\.bin\\tailwindcss -i ./input.css -o ./public/css/tailwind.css --minify",
-    "start": "node api/generate-excel.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "tailwindcss": "^3.0.0"
+    "start": "node server.js"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "exceljs": "^4.4.0"
   }
 }
