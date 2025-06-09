@@ -1,10 +1,17 @@
 {
   "name": "my-excel-app",
   "version": "1.0.0",
-  "description": "Packaging Materials Inventory with Serverless Excel Export",
+  "description": "",
   "main": "api/generate-excel.js",
   "scripts": {
-    "start": "vercel dev"
+    "build-tailwind": ".\\node_modules\\.bin\\tailwindcss -i ./input.css -o ./public/css/tailwind.css --minify",
+    "start": "node api/generate-excel.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.0.0"
   },
   "dependencies": {
     "exceljs": "^4.4.0"
